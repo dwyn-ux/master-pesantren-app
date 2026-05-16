@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["php84Extensions.gd", "php84Extensions.zip", "php84Extensions.pdo_mysql"]
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = [
+    "composer install --optimize-autoloader --no-interaction --no-dev"
+]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = [
+    "npm install && npm run build"
+]
+
+[start]
+cmd = "php artisan config:clear && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port $PORT"

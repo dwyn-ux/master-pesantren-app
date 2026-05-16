@@ -1,0 +1,9 @@
+yang perlu dilakukan sekarang
+1. laporan keuangan, tahfidz, laundry, kantin dalam bentuk pdf disertai dengan analisis
+2. notifikasi bisa dikirim bukan hanya tagihan saja, tapi juga pemeriksaan kesehatan, untuk pemeriksaan kesehatan saat kondisi santri perlu untuk di rujuk atau dirawat orang tua dirumah akan memberikan notifikasi ke orang tua serta mengaktifkan fitur voice note di akun ustadz/ustaddzah untuk menginfo tanpa biaya
+3. kemudian auto notifikasi kepada orang tua setiap pekan sekali, bisa di set harinya oleh admin. notifikasinya berisi weekly report (laporan mingguan), yang dilaporkan adalah kondisi saldo, capaian tahfidz (sepekan dapat berapa halaman dan sudah mencapai berapa juz dan halaman), sisa uang saku dan bisa diklik untuk cek apa saja yang dibeli anaknya
+4. ada juga laporan bulanannya dengan isi kompilasi dari laporan pekanan tadi, dan akan ada laporan semester dan tahunan
+5. pastikan semua data terkoneksi dengan baik
+nextnya perlu buat:
+1. aplikasi kantin offline yang disincronkan ke server (supaya jual belinya lancar) dengan full shortcut
+2. aplikasi finance untuk bendahara dengan fitur lengkap semua kebutuhan bendahara

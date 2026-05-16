@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="time"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="search"],
+    input[type="file"],
+    select,
+    textarea {
+        background-color: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:hover,
+    input[type="email"]:hover,
+    input[type="password"]:hover,
+    input[type="number"]:hover,
+    input[type="date"]:hover,
+    select:hover,
+    textarea:hover {
+        border-color: #9ca3af;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="datetime-local"]:focus,
+    input[type="time"]:focus,
+    input[type="tel"]:focus,
+    input[type="url"]:focus,
+    input[type="search"]:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+        border: 1px solid #9ca3af;
+        background-color: #fff;
+    }
+    input[type="checkbox"]:focus,
+    input[type="radio"]:focus {
+        outline: 2px solid rgba(99, 102, 241, 0.4);
+        outline-offset: 2px;
+    }
+    input:disabled, select:disabled, textarea:disabled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        cursor: not-allowed;
+    }
+}

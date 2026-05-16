@@ -1,0 +1,38 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	new file:   Akun Ustadz.txt
+#	modified:   app/Http/Controllers/Auth/AuthController.php
+#	modified:   app/Http/Controllers/Auth/ChangePasswordController.php
+#	new file:   app/Http/Controllers/Superadmin/DashboardController.php
+#	new file:   app/Http/Controllers/Superadmin/FeatureController.php
+#	new file:   app/Http/Middleware/CheckFeature.php
+#	new file:   app/Models/AppSetting.php
+#	modified:   app/Providers/AppServiceProvider.php
+#	new file:   app/Services/FeatureManager.php
+#	modified:   bootstrap/app.php
+#	new file:   config/features.php
+#	new file:   database/migrations/2026_05_15_072314_create_app_settings_table.php
+#	modified:   database/seeders/DatabaseSeeder.php
+#	new file:   database/seeders/FeatureSeeder.php
+#	modified:   database/seeders/RoleSeeder.php
+#	new file:   database/seeders/SuperadminSeeder.php
+#	new file:   kebutuhan.txt
+#	modified:   resources/views/partials/sidebar-admin.blade.php
+#	modified:   resources/views/partials/sidebar-bendahara.blade.php
+#	modified:   resources/views/partials/sidebar-kesantrian.blade.php
+#	modified:   resources/views/partials/sidebar-outlet.blade.php
+#	new file:   resources/views/partials/sidebar-superadmin.blade.php
+#	modified:   resources/views/partials/sidebar-ustadz.blade.php
+#	modified:   resources/views/partials/sidebar-wali.blade.php
+#	new file:   resources/views/superadmin/dashboard.blade.php
+#	new file:   resources/views/superadmin/features/index.blade.php
+#	modified:   routes/finance.php
+#	modified:   routes/web.php
+#	new file:   server.php
+#

@@ -1,0 +1,70 @@
+@extends('layouts.app')
+@section('title', 'Detail Kesehatan ' . $kunjungan->patient?->nama)
+@section('page-title', 'Detail Kunjungan Klinik')
+
+@section('sidebar')
+    @include('partials.sidebar-wali')
+@endsection
+
+@section('content')
+<div class="rounded-2xl shadow-md p-6 mb-6 text-white"
+    style="background: linear-gradient(135deg, {{ $kunjungan->perlu_rujuk ? '#dc2626 0%, #991b1b' : ($kunjungan->perlu_dirawat_ortu ? '#d97706 0%, #92400e' : '#0f766e 0%, #115e59') }} 100%)">
+    <p class="text-white/70 text-sm font-medium">Kunjungan Klinik</p>
+    <h3 class="text-2xl font-extrabold">{{ $kunjungan->patient?->nama }}</h3>
+    <p class="text-white/80 text-sm mt-1">{{ $kunjungan->tanggal_kunjungan?->translatedFormat('l, d F Y H:i') }}</p>
+</div>
+
+@if($kunjungan->perlu_rujuk || $kunjungan->perlu_dirawat_ortu)
+<div class="rounded-2xl p-5 mb-6 {{ $kunjungan->perlu_rujuk ? 'bg-red-50 border border-red-200' : 'bg-amber-50 border border-amber-200' }}">
+    <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-full {{ $kunjungan->perlu_rujuk ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600' }} flex items-center justify-center">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+            <h4 class="font-bold {{ $kunjungan->perlu_rujuk ? 'text-red-700' : 'text-amber-700' }}">
+                {{ $kunjungan->perlu_rujuk ? 'Perlu Dirujuk ke Faskes' : 'Disarankan Dirawat di Rumah' }}
+            </h4>
+            @if($kunjungan->catatan_ortu)
+                <p class="text-sm text-gray-700 mt-1">{{ $kunjungan->catatan_ortu }}</p>
+            @endif
+        </div>
+    </div>
+</div>
+@endif
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass-panel rounded-2xl shadow-sm p-6">
+        <h4 class="font-bold text-gray-700 mb-4">Informasi Pemeriksaan</h4>
+        <dl class="space-y-3 text-sm">
+            <div><dt class="text-gray-500 text-xs uppercase">Keluhan</dt><dd class="text-gray-800 mt-1">{{ $kunjungan->keluhan }}</dd></div>
+            <div><dt class="text-gray-500 text-xs uppercase">Diagnosa</dt><dd class="text-gray-800 mt-1">{{ $kunjungan->diagnosa }}</dd></div>
+            <div><dt class="text-gray-500 text-xs uppercase">Tindakan / Obat</dt><dd class="text-gray-800 mt-1">{{ $kunjungan->tindakan_obat }}</dd></div>
+            <div><dt class="text-gray-500 text-xs uppercase">Status Pengobatan</dt><dd class="text-gray-800 mt-1">{{ str_replace('_', ' ', $kunjungan->status_pengobatan) }}</dd></div>
+            @if($kunjungan->lama_istirahat_hari)
+                <div><dt class="text-gray-500 text-xs uppercase">Lama Istirahat</dt><dd class="text-gray-800 mt-1">{{ $kunjungan->lama_istirahat_hari }} hari</dd></div>
+            @endif
+            <div><dt class="text-gray-500 text-xs uppercase">Diperiksa Oleh</dt><dd class="text-gray-800 mt-1">{{ $kunjungan->pemeriksa?->nama ?? '-' }}</dd></div>
+        </dl>
+    </div>
+
+    <div class="glass-panel rounded-2xl shadow-sm p-6">
+        <h4 class="font-bold text-gray-700 mb-4">Pesan Suara Terkait</h4>
+        @forelse($kunjungan->voiceNotes as $vn)
+            <div class="border border-gray-100 rounded-xl p-4 mb-3">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-semibold text-sm text-gray-700">{{ $vn->pengirimUstadz?->nama ?? 'Ustadz' }}</p>
+                    <p class="text-xs text-gray-400">{{ $vn->created_at->diffForHumans() }}</p>
+                </div>
+                <audio controls class="w-full"><source src="{{ $vn->audio_url }}"></audio>
+                <p class="text-xs text-gray-400 mt-2">{{ $vn->durasi_detik }}s · konteks: {{ $vn->konteks ?? 'umum' }}</p>
+            </div>
+        @empty
+            <p class="text-sm text-gray-400 text-center py-6">Belum ada pesan suara dari ustadz.</p>
+        @endforelse
+    </div>
+</div>
+
+<div class="mt-6">
+    <a href="{{ route('wali.kesehatan.index') }}" class="text-sm text-gray-500 hover:text-indigo-600"><i class="fa-solid fa-arrow-left"></i> Kembali ke daftar kesehatan</a>
+</div>
+@endsection

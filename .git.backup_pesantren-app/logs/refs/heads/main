@@ -1,0 +1,57 @@
+0000000000000000000000000000000000000000 39b3cb6525bf273d478224da336c8838abe0bbc4 Fahmi <fahmi@local> 1777774886 +0700	commit (initial): chore: init repo and checkpoint work
+39b3cb6525bf273d478224da336c8838abe0bbc4 6f4e0650f687752d3fe2786934bbe40cbd104ef0 Fahmi <fahmi@local> 1777784703 +0700	commit: feat: modul perizinan kesantrian, limit uang saku, dan laporan terpadu
+6f4e0650f687752d3fe2786934bbe40cbd104ef0 e7cfcfed44450cb31c0fdaebc23531d4a6e46264 Fahmi <fahmi@local> 1777867936 +0700	commit: feat: revamp santri fields, batch tagihan checkout, Midtrans Snap & Tripay QRIS
+e7cfcfed44450cb31c0fdaebc23531d4a6e46264 92ac414259b605900bf81035509b1032eb26e0b8 Fahmi <fahmi@local> 1777884594 +0700	commit: feat: replace moon icon with Ash-Shiddiq logo from assets/favicon
+92ac414259b605900bf81035509b1032eb26e0b8 6fdde7562618f185d62911dc78610476fe2ad5f9 Fahmi <fahmi@local> 1777983302 +0700	commit: feat: add RFID module and hardware simulator, fix batch payment detail view and Midtrans sync
+6fdde7562618f185d62911dc78610476fe2ad5f9 f15919fa3013673bf4b6766cc01ca06b61ffac12 Fahmi <fahmi@local> 1778029655 +0700	commit: chore: upgrade php to 8.4 and add ext-gd for railway deployment
+f15919fa3013673bf4b6766cc01ca06b61ffac12 7b318957a2e2a6e0d4a5c5c4830eb01d4ef82007 Fahmi <fahmi@local> 1778029994 +0700	commit: chore: add nixpacks.toml to install php extensions
+7b318957a2e2a6e0d4a5c5c4830eb01d4ef82007 9c2abd24b64a6e3467eab9fdce497faeb338d14f Fahmi <fahmi@local> 1778030270 +0700	commit: chore: add ext-zip and update nixpacks
+9c2abd24b64a6e3467eab9fdce497faeb338d14f 61bdca93e39842625b1a07cf2bd32e05b2a99ade Fahmi <fahmi@local> 1778030389 +0700	commit: fix: ensure storage directories exist for view cache
+61bdca93e39842625b1a07cf2bd32e05b2a99ade e055e4ab23acd5d3599a704574db18d00a2fe738 Fahmi <fahmi@local> 1778030516 +0700	commit: fix: refactor build process to skip view:cache during build
+e055e4ab23acd5d3599a704574db18d00a2fe738 b584c2396bc15a083ea12b00ca11060a7733cb61 Fahmi <fahmi@local> 1778030814 +0700	commit: fix: add missing config/view.php
+b584c2396bc15a083ea12b00ca11060a7733cb61 2896b4c302be7326577964a6cb4231861275a68d Fahmi <fahmi@local> 1778030901 +0700	commit: fix: simplify nixpacks and move artisan commands to start phase
+2896b4c302be7326577964a6cb4231861275a68d d0170aab958848d2ad1861d68fba03600a395309 Fahmi <fahmi@local> 1778031447 +0700	commit: fix: ensure permissions and push for another attempt
+d0170aab958848d2ad1861d68fba03600a395309 19d6b04f0b04394d23880bffa88deabc95084e1e Fahmi <fahmi@local> 1778032118 +0700	commit: fix: make top_up_requests migration more robust
+19d6b04f0b04394d23880bffa88deabc95084e1e 77db2f967e4c9603a9ece681ecbb7c7ff361f0bf Fahmi <fahmi@local> 1778032130 +0700	pull --rebase (finish): refs/heads/main onto 59e03340fba8ce0bcc98e6d4864bd63a5654b68c
+77db2f967e4c9603a9ece681ecbb7c7ff361f0bf 5a42f7cb8659bdc17da896b6281ea1e32481d379 Fahmi <fahmi@local> 1778032359 +0700	commit: fix: migration compatibility and handle sqlite/mysql differences
+5a42f7cb8659bdc17da896b6281ea1e32481d379 5c220425d1e4fbf1cfd443ab4b455465934be55b Fahmi <fahmi@local> 1778033824 +0700	commit: fix: run config:clear before migrate to ensure fresh env
+5c220425d1e4fbf1cfd443ab4b455465934be55b 156b77b18d66abce6763bb950f9a51db1dcd3993 Fahmi <fahmi@local> 1778034098 +0700	commit: fix: prioritize DATABASE_URL for railway
+156b77b18d66abce6763bb950f9a51db1dcd3993 c811ed9fbaa18a5fca8a50e160aa63bd269cc559 Fahmi <fahmi@local> 1778034889 +0700	commit: fix: remove auto-migration to prevent race condition
+c811ed9fbaa18a5fca8a50e160aa63bd269cc559 7005aa54e1da3e92132a0dbcda2179d9df19094d Fahmi <fahmi@local> 1778042984 +0700	commit: chore: final and correct setup for railway deployment
+7005aa54e1da3e92132a0dbcda2179d9df19094d b08379add635204dcac6895a756efb3890ee1308 Fahmi <fahmi@local> 1778045479 +0700	commit: fix: install pdo_mysql extension and add migrate to start command
+b08379add635204dcac6895a756efb3890ee1308 929162f4b46ef58ed05d9bcc25ccdd61dbc97974 Fahmi <fahmi@local> 1778045879 +0700	commit: fix: disable SQLite FK constraints before dropping approved_by column
+929162f4b46ef58ed05d9bcc25ccdd61dbc97974 0e79e64d967b93eee06ad79c636393c4eba96270 Fahmi <fahmi@local> 1778046944 +0700	commit: fix: add railpack.json to remove artisan caching from build phase
+0e79e64d967b93eee06ad79c636393c4eba96270 f7f402dc371c547914b0449ec2d643e367f84326 Fahmi <fahmi@local> 1778048726 +0700	commit: temp: add db:seed to start command for initial data seeding
+f7f402dc371c547914b0449ec2d643e367f84326 94ca9a0c3d728836280467cf4222667ce5804ba5 Fahmi <fahmi@local> 1778049439 +0700	commit: fix: remove db:seed from start command to stop restart loop
+94ca9a0c3d728836280467cf4222667ce5804ba5 6c2e216762d62280c0935855f72945d2a0f7b6b8 Fahmi <fahmi@local> 1778049891 +0700	commit: fix: use upsert in SurahSeeder and re-add db:seed to start command
+6c2e216762d62280c0935855f72945d2a0f7b6b8 10b45ee72806103f65e1f28e460b09337f5abc06 Fahmi <fahmi@local> 1778208416 +0700	commit: feat: setup fcm notification and api token
+10b45ee72806103f65e1f28e460b09337f5abc06 b5833a5b42156088f8d56890d65a87f50af26e15 Fahmi <fahmi@local> 1778248508 +0700	commit: fix: firebase credential dari env dan fix FIELD() query untuk PostgreSQL di resolveWaliForTagihan
+b5833a5b42156088f8d56890d65a87f50af26e15 b8f77a4f8b772ed9c57d835ad8a7e2e25b12805a Fahmi <fahmi@local> 1778251780 +0700	commit: fix: ganti withTarget ke CloudMessage::new()->withTarget() karena method statis tidak ada di versi SDK ini
+b8f77a4f8b772ed9c57d835ad8a7e2e25b12805a 642c88f7d34fe72b75c7f915eedce456204bd665 Fahmi <fahmi@local> 1778252154 +0700	commit: fix: ganti withTarget ke withToken karena versi SDK ini menggunakan withToken
+642c88f7d34fe72b75c7f915eedce456204bd665 f0ff83916be141597518d11913731c7ebfd70d96 Fahmi <fahmi@local> 1778252991 +0700	commit: fix: ganti walis ke wali sesuai nama relationship di model Santri
+f0ff83916be141597518d11913731c7ebfd70d96 64dd331e3bb4b924cd697cc38a32313cef7c2ca0 Fahmi <fahmi@local> 1778253683 +0700	commit: debug: tambah logging pengiriman notifikasi di TagihanController
+64dd331e3bb4b924cd697cc38a32313cef7c2ca0 ed917f51ae911bf837c22bbdb5cff1788f434bd6 Fahmi <fahmi@local> 1778294766 +0700	commit: fix: cast tagihan_id ke string karena Firebase Messaging data hanya menerima string
+ed917f51ae911bf837c22bbdb5cff1788f434bd6 8c4e105a8fa130443a6dc1e764d03acdc8989bd1 Fahmi <fahmi@local> 1778295471 +0700	commit: fix: migrasi pembayaran batch agar kompatibel dengan PostgreSQL
+8c4e105a8fa130443a6dc1e764d03acdc8989bd1 9f48c2c63918f6da209be555d0b8cc8947d67072 Fahmi <fahmi@local> 1778295766 +0700	commit: fix: hapus check constraint di PostgreSQL agar bisa input midtrans_snap
+9f48c2c63918f6da209be555d0b8cc8947d67072 7fc33d001d308a74c6c20cbdd09e037160a2589c Fahmi <fahmi@local> 1778295965 +0700	commit: fix: tambahkan pengecekan kolom agar migrasi tidak error duplicate column
+7fc33d001d308a74c6c20cbdd09e037160a2589c 712129357b73f5814a41169f11baf2571f2178f4 Fahmi <fahmi@local> 1778296298 +0700	commit: fix: ganti top_up menjadi topup agar sesuai dengan ENUM database PostgreSQL
+712129357b73f5814a41169f11baf2571f2178f4 a9e1a86d6fea0f1a98bc1d154668fd913d6218ca Fahmi <fahmi@local> 1778297188 +0700	commit: feat: validasi duplikat, otomasi lunas midtrans, auto reload dashboard, dan proteksi tagihan pending
+a9e1a86d6fea0f1a98bc1d154668fd913d6218ca ee4b7e74bcaf8c2595a77e496dac7b4d0a2fc692 Fahmi <fahmi@local> 1778303347 +0700	commit: fix: pindahkan pop-up rekap ke stack modals dan tambahkan fitur batal transaksi
+ee4b7e74bcaf8c2595a77e496dac7b4d0a2fc692 90c61936194d531c7b748097d1bd9c25b3bf91e7 Fahmi <fahmi@local> 1778377221 +0700	commit: fix: improve rekap modal overlay with dark backdrop and blur
+90c61936194d531c7b748097d1bd9c25b3bf91e7 52a5876b8b8a76bb4fa2e31319fe546b166c29c2 Fahmi <fahmi@local> 1778377603 +0700	commit: fix: enforce modal backdrop darkness and disable body scroll
+52a5876b8b8a76bb4fa2e31319fe546b166c29c2 4c1639966ff594de4ace06d1774df2094e6b77cd Fahmi <fahmi@local> 1778377680 +0700	commit: fix: restore blade structure and fix 500 error
+4c1639966ff594de4ace06d1774df2094e6b77cd a3f81b3b5db9c652b5f2661bc6066cd7cd5a897a Fahmi <fahmi@local> 1778377831 +0700	commit: refactor: move push modals outside content section to fix blade error
+a3f81b3b5db9c652b5f2661bc6066cd7cd5a897a c59343cadea963d97610929e887ff5b01f0537fa Fahmi <fahmi@local> 1778377998 +0700	commit: fix: force ultra high z-index on modal and backdrop to prevent dashboard bleeding
+c59343cadea963d97610929e887ff5b01f0537fa 6c643022a606108999779bc1713fc4549f9d7689 Fahmi <fahmi@local> 1778378120 +0700	commit: style: remove header gradient and make modal corners rounded-3xl
+6c643022a606108999779bc1713fc4549f9d7689 d54ae353543869fa1dbdd7afc3c9259cb35b20e3 Fahmi <fahmi@local> 1778380887 +0700	commit: feat: add test notification button to wali dashboard
+d54ae353543869fa1dbdd7afc3c9259cb35b20e3 1aded57d2d155bc4a4ef590a7a88b57095692eb1 Fahmi <fahmi@local> 1778381673 +0700	commit: feat: add capacitor push notification logic to main layout
+1aded57d2d155bc4a4ef590a7a88b57095692eb1 d4ce317400d48d4a46447ae2f50cca6ed0c214d4 Fahmi <fahmi@local> 1778382143 +0700	commit: fix: add delay to capacitor initialization in web view
+d4ce317400d48d4a46447ae2f50cca6ed0c214d4 8e85d6d77978edf83ea16559b3d79e9fe12d2076 Fahmi <fahmi@local> 1778383512 +0700	commit: fix: use web route for fcm token update to maintain session in webview
+8e85d6d77978edf83ea16559b3d79e9fe12d2076 029216b8349d566211d0b3095c4a1af60899e50a Fahmi <fahmi@local> 1778413980 +0700	commit: feat: add activate and permanent delete for ustadz management
+029216b8349d566211d0b3095c4a1af60899e50a ea5f3ed19d8ed47cce9d28cd9c6ce40946416efe Fahmi <fahmi@local> 1778418809 +0700	commit: fix: set default value for tipe_halaqah in setoran to avoid null violation
+ea5f3ed19d8ed47cce9d28cd9c6ce40946416efe cc982c258f9cb0573162b39282fc37df2e34a432 Fahmi <fahmi@local> 1778590811 +0700	commit: feat: add PDF reports with analysis, auto weekly/monthly notifications, health notifications, and free ustadz voice notes
+cc982c258f9cb0573162b39282fc37df2e34a432 94e30a31d4dba51daccdaedcbc5951b524d29231 Fahmi <fahmi@local> 1778591555 +0700	commit: feat: auto-remember wali login and extend session to 30 days for better mobile UX
+94e30a31d4dba51daccdaedcbc5951b524d29231 8bdb78cdb9e5d711198b750ae3829e1409b628dd Fahmi <fahmi@local> 1778591989 +0700	commit: fix: klinik search includes all active santri by nama/nis/nik/kelas
+8bdb78cdb9e5d711198b750ae3829e1409b628dd ad887d652bb8457019618fa38f682d046ae3d724 Fahmi <fahmi@local> 1778592418 +0700	commit: feat: add activate and permanent delete for santri and wali management
+ad887d652bb8457019618fa38f682d046ae3d724 273309a72ed71906dd74b3bfde6bed9b701a6a75 Fahmi <fahmi@local> 1778798282 +0700	commit: feat(finance): add comprehensive finance app for bendahara
+273309a72ed71906dd74b3bfde6bed9b701a6a75 f956bdb78e46b9fcdaa35f4a7c0397a12c3b100f Fahmi <fahmi@local> 1778798773 +0700	commit: feat(finance): add PPh 21 calculator, reminder scheduler, and global form styling
