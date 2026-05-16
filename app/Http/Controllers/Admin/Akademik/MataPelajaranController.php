@@ -24,6 +24,7 @@ class MataPelajaranController extends Controller
     {
         $validated = $request->validate([
             'nama'      => 'required|string|max:100',
+            'nama_ar'   => 'nullable|string|max:200',
             'kode'      => 'required|string|max:20|unique:mata_pelajaran,kode',
             'deskripsi' => 'nullable|string',
             'urutan'    => 'required|integer|min:0',
@@ -44,6 +45,7 @@ class MataPelajaranController extends Controller
     {
         $validated = $request->validate([
             'nama'      => 'required|string|max:100',
+            'nama_ar'   => 'nullable|string|max:200',
             'kode'      => 'required|string|max:20|unique:mata_pelajaran,kode,' . $mataPelajaran->id,
             'deskripsi' => 'nullable|string',
             'urutan'    => 'required|integer|min:0',

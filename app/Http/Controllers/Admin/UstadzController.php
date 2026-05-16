@@ -35,6 +35,7 @@ class UstadzController extends Controller
         $validated = $request->validate([
             'nik'           => 'nullable|string|max:20|unique:ustadz,nik',
             'nama'          => 'required|string|max:100',
+            'nama_ar'       => 'nullable|string|max:200',
             'alamat'        => 'nullable|string',
             'tanggal_lahir' => 'nullable|date',
             'no_hp'         => 'nullable|string|max:20',
@@ -63,6 +64,7 @@ class UstadzController extends Controller
                 'user_id'       => $user->id,
                 'nik'           => $request->nik,
                 'nama'          => $request->nama,
+                'nama_ar'       => $request->nama_ar,
                 'alamat'        => $request->alamat,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'no_hp'         => $request->no_hp,
@@ -89,6 +91,7 @@ class UstadzController extends Controller
         $request->validate([
             'nik'           => "nullable|string|max:20|unique:ustadz,nik,{$ustadz->id}",
             'nama'          => 'required|string|max:100',
+            'nama_ar'       => 'nullable|string|max:200',
             'alamat'        => 'nullable|string',
             'tanggal_lahir' => 'nullable|date',
             'no_hp'         => 'nullable|string|max:20',
@@ -97,6 +100,7 @@ class UstadzController extends Controller
         $ustadz->update([
             'nik'           => $request->nik,
             'nama'          => $request->nama,
+            'nama_ar'       => $request->nama_ar,
             'alamat'        => $request->alamat,
             'tanggal_lahir' => $request->tanggal_lahir,
             'no_hp'         => $request->no_hp

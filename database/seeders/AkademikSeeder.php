@@ -115,23 +115,27 @@ class AkademikSeeder extends Seeder
 
         // ── Mata Pelajaran Diniyah + Kitab ──────────────────────
         $mapelData = [
-            ['kode' => 'FIQ', 'nama' => 'Fiqih',         'urutan' => 1, 'kitab' => [['Safinatun Najah', 'Salim bin Sumair', 64], ['Fathul Qarib', 'Ibnu Qasim al-Ghazi', 200]]],
-            ['kode' => 'AQI', 'nama' => 'Aqidah',        'urutan' => 2, 'kitab' => [['Aqidatul Awam', 'Ahmad Marzuqi', 30], ['Tijan Darari', 'Nawawi al-Bantani', 80]]],
-            ['kode' => 'NAH', 'nama' => 'Nahwu',         'urutan' => 3, 'kitab' => [['Jurumiyah', 'Ash-Shanhaji', 40], ['Imrithi', 'Syarafuddin Yahya', 100], ['Alfiyah', 'Ibnu Malik', 200]]],
-            ['kode' => 'SHF', 'nama' => 'Sharaf',        'urutan' => 4, 'kitab' => [['Amtsilatu Tashrifiyyah', 'Maksum bin Ali', 60]]],
-            ['kode' => 'TAF', 'nama' => 'Tafsir',        'urutan' => 5, 'kitab' => [['Tafsir Jalalain', 'Jalaluddin', 600]]],
-            ['kode' => 'HAD', 'nama' => 'Hadits',        'urutan' => 6, 'kitab' => [['Arbain Nawawi', 'Imam Nawawi', 80], ['Bulughul Maram', 'Ibnu Hajar', 400]]],
-            ['kode' => 'AKH', 'nama' => 'Akhlak',        'urutan' => 7, 'kitab' => [['Taisirul Khallaq', 'Hafidz Hasan', 50], ['Akhlaqul Banin', 'Umar bin Ahmad Baradja', 80]]],
-            ['kode' => 'BAR', 'nama' => 'Bahasa Arab',   'urutan' => 8, 'kitab' => [['Madarijud Durus', 'KH. Basori', 100]]],
-            ['kode' => 'TJW', 'nama' => 'Tajwid',        'urutan' => 9, 'kitab' => [['Hidayatul Mustafid', 'Muhammad Mahmud', 40]]],
-            ['kode' => 'SIR', 'nama' => 'Sirah Nabawiyah', 'urutan' => 10, 'kitab' => [['Khulasah Nurul Yaqin', 'Umar Abdul Jabbar', 120]]],
+            ['kode' => 'FIQ', 'nama' => 'Fiqih',           'nama_ar' => 'الفِقه',          'urutan' => 1, 'kitab' => [['Safinatun Najah', 'Salim bin Sumair', 64], ['Fathul Qarib', 'Ibnu Qasim al-Ghazi', 200]]],
+            ['kode' => 'AQI', 'nama' => 'Aqidah',          'nama_ar' => 'العَقِيدَة',       'urutan' => 2, 'kitab' => [['Aqidatul Awam', 'Ahmad Marzuqi', 30], ['Tijan Darari', 'Nawawi al-Bantani', 80]]],
+            ['kode' => 'NAH', 'nama' => 'Nahwu',           'nama_ar' => 'النَّحْو',          'urutan' => 3, 'kitab' => [['Jurumiyah', 'Ash-Shanhaji', 40], ['Imrithi', 'Syarafuddin Yahya', 100], ['Alfiyah', 'Ibnu Malik', 200]]],
+            ['kode' => 'SHF', 'nama' => 'Sharaf',          'nama_ar' => 'الصَّرْف',          'urutan' => 4, 'kitab' => [['Amtsilatu Tashrifiyyah', 'Maksum bin Ali', 60]]],
+            ['kode' => 'TAF', 'nama' => 'Tafsir',          'nama_ar' => 'التَّفْسِير',        'urutan' => 5, 'kitab' => [['Tafsir Jalalain', 'Jalaluddin', 600]]],
+            ['kode' => 'HAD', 'nama' => 'Hadits',          'nama_ar' => 'الحَدِيث',         'urutan' => 6, 'kitab' => [['Arbain Nawawi', 'Imam Nawawi', 80], ['Bulughul Maram', 'Ibnu Hajar', 400]]],
+            ['kode' => 'AKH', 'nama' => 'Akhlak',          'nama_ar' => 'الأَخْلَاق',        'urutan' => 7, 'kitab' => [['Taisirul Khallaq', 'Hafidz Hasan', 50], ['Akhlaqul Banin', 'Umar bin Ahmad Baradja', 80]]],
+            ['kode' => 'BAR', 'nama' => 'Bahasa Arab',     'nama_ar' => 'اللُّغَة العَرَبِيَّة', 'urutan' => 8, 'kitab' => [['Madarijud Durus', 'KH. Basori', 100]]],
+            ['kode' => 'TJW', 'nama' => 'Tajwid',          'nama_ar' => 'التَّجوِيد',        'urutan' => 9, 'kitab' => [['Hidayatul Mustafid', 'Muhammad Mahmud', 40]]],
+            ['kode' => 'SIR', 'nama' => 'Sirah Nabawiyah', 'nama_ar' => 'السِّيرَة النَّبَوِيَّة', 'urutan' => 10, 'kitab' => [['Khulasah Nurul Yaqin', 'Umar Abdul Jabbar', 120]]],
         ];
 
         foreach ($mapelData as $data) {
             $mapel = MataPelajaran::firstOrCreate(
                 ['kode' => $data['kode']],
-                ['nama' => $data['nama'], 'urutan' => $data['urutan']]
+                ['nama' => $data['nama'], 'nama_ar' => $data['nama_ar'], 'urutan' => $data['urutan']]
             );
+            // Update nama_ar kalau belum ada
+            if (empty($mapel->nama_ar) && !empty($data['nama_ar'])) {
+                $mapel->update(['nama_ar' => $data['nama_ar']]);
+            }
 
             foreach ($data['kitab'] as [$nama, $pengarang, $halaman]) {
                 Kitab::firstOrCreate(

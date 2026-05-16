@@ -11,7 +11,7 @@ class Santri extends Model
     protected $table = 'santri';
 
     protected $fillable = [
-        'nis', 'nik', 'nama', 'kelas', 'jenis_kelamin', 'alamat', 'no_hp_ortu', 'tanggal_lahir', 'foto',
+        'nis', 'nik', 'nama', 'nama_ar', 'kelas', 'jenis_kelamin', 'alamat', 'no_hp_ortu', 'tanggal_lahir', 'foto',
         'fingerprint_id', 'rfid_uid', 'saldo', 'is_aktif',
         'tipe_limit', 'nominal_limit',
     ];

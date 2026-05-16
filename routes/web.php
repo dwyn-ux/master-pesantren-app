@@ -310,6 +310,10 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
                 Route::get("/raport", [RaportController::class, "index"])->name("raport.index");
                 Route::get("/raport/{santri}/preview/{tahunAjaran}", [RaportController::class, "preview"])->name("raport.preview");
                 Route::get("/raport/{santri}/download/{tahunAjaran}", [RaportController::class, "download"])->name("raport.download");
+
+                // Pengaturan Raport (KOP, pejabat, bilingual)
+                Route::get("/raport-setting", [\App\Http\Controllers\Admin\Akademik\RaportSettingController::class, "index"])->name("raport-setting.index");
+                Route::put("/raport-setting", [\App\Http\Controllers\Admin\Akademik\RaportSettingController::class, "update"])->name("raport-setting.update");
             });
         });
     });

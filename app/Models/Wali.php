@@ -11,7 +11,7 @@ class Wali extends Model
 {
     protected $table = "wali";
 
-    protected $fillable = ["user_id", "nama", "no_hp"];
+    protected $fillable = ["user_id", "nama", "nama_ar", "no_hp"];
 
     public function getSaldoAttribute(): int
     {

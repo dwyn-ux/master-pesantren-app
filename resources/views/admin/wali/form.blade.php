@@ -41,6 +41,7 @@
                            placeholder="08xxxxxxxxxx">
                     @error('no_hp')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
                 </div>
+                </div>
 
                 @if(!$wali)
                 <div class="md:col-span-12 mt-4">

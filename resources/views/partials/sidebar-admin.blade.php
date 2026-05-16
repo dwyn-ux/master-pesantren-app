@@ -64,9 +64,13 @@
     </a>
     @endfeature
     @feature('akademik_raport')
-    <a href="{{ route('admin.akademik.raport.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.raport*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+    <a href="{{ route('admin.akademik.raport.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.raport.*') || request()->routeIs('admin.akademik.raport') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-file-pdf w-5 text-center"></i>
         <span class="font-medium text-sm">Raport</span>
+    </a>
+    <a href="{{ route('admin.akademik.raport-setting.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.raport-setting*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-gear w-5 text-center"></i>
+        <span class="font-medium text-sm">Pengaturan Raport</span>
     </a>
     @endfeature
     @feature('akademik_kenaikan')

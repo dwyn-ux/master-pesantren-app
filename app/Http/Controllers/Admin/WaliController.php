@@ -36,6 +36,7 @@ class WaliController extends Controller
     {
         $request->validate([
             'nama'        => 'required|string|max:100',
+            'nama_ar'     => 'nullable|string|max:200',
             'no_hp'       => 'required|string|max:20',
             'santri_ids'  => 'required|array|min:1',
             'santri_ids.*'=> 'exists:santri,id',
@@ -75,6 +76,7 @@ class WaliController extends Controller
             $wali = Wali::create([
                 'user_id' => $user->id,
                 'nama'    => $request->nama,
+                'nama_ar' => $request->nama_ar,
                 'no_hp'   => $request->no_hp,
             ]);
 
@@ -108,11 +110,16 @@ class WaliController extends Controller
     public function update(Request $request, Wali $wali)
     {
         $request->validate([
-            'nama'  => 'required|string|max:100',
-            'no_hp' => 'required|string|max:20',
+            'nama'    => 'required|string|max:100',
+            'nama_ar' => 'nullable|string|max:200',
+            'no_hp'   => 'required|string|max:20',
         ]);
 
-        $wali->update(['nama' => $request->nama, 'no_hp' => $request->no_hp]);
+        $wali->update([
+            'nama'    => $request->nama,
+            'nama_ar' => $request->nama_ar,
+            'no_hp'   => $request->no_hp,
+        ]);
         $wali->user->update(['name' => $request->nama]);
 
         return redirect()->route('admin.wali.index')

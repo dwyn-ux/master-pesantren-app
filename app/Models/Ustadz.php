@@ -10,7 +10,7 @@ class Ustadz extends Model
 {
     protected $table = 'ustadz';
 
-    protected $fillable = ['user_id', 'nik', 'nama', 'alamat', 'tanggal_lahir', 'no_hp'];
+    protected $fillable = ['user_id', 'nik', 'nama', 'nama_ar', 'alamat', 'tanggal_lahir', 'no_hp'];
 
     protected function casts(): array
     {
