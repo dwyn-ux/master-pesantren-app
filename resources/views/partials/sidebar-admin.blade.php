@@ -124,6 +124,12 @@
         <span class="font-medium text-sm">Kartu RFID</span>
     </a>
     @endfeature
+    @feature('kantin')
+    <a href="{{ route('admin.kantin-device.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.kantin-device*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-laptop w-5 text-center"></i>
+        <span class="font-medium text-sm">Device Kantin Offline</span>
+    </a>
+    @endfeature
     @feature('tagihan')
     <a href="{{ route('admin.payment-settings.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.payment-settings*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-money-check-dollar w-5 text-center"></i>

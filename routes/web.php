@@ -248,6 +248,16 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
             ->parameters(["rfid" => "santri"])
             ->middleware("feature:rfid");
 
+        // Device Kantin Offline (untuk Electron app)
+        Route::middleware("feature:kantin")->group(function () {
+            Route::get("kantin-device", [\App\Http\Controllers\Admin\KantinDeviceController::class, "index"])->name("kantin-device.index");
+            Route::post("kantin-device", [\App\Http\Controllers\Admin\KantinDeviceController::class, "store"])->name("kantin-device.store");
+            Route::post("kantin-device/{device}/regenerate", [\App\Http\Controllers\Admin\KantinDeviceController::class, "regenerate"])->name("kantin-device.regenerate");
+            Route::post("kantin-device/{device}/toggle-status", [\App\Http\Controllers\Admin\KantinDeviceController::class, "toggleStatus"])->name("kantin-device.toggle-status");
+            Route::delete("kantin-device/{device}", [\App\Http\Controllers\Admin\KantinDeviceController::class, "destroy"])->name("kantin-device.destroy");
+            Route::get("kantin-device/{device}/logs", [\App\Http\Controllers\Admin\KantinDeviceController::class, "logs"])->name("kantin-device.logs");
+        });
+
         // Perizinan & Kepulangan
         Route::middleware("feature:perizinan")->group(function () {
             Route::resource("perizinan", \App\Http\Controllers\Admin\PerizinanController::class);

@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             "must.change.pw" => \App\Http\Middleware\EnsureMustChangePw::class,
             "finance.feature" => \App\Http\Middleware\CheckFinanceFeature::class,
             "feature" => \App\Http\Middleware\CheckFeature::class,
+            "kantin.device" => \App\Http\Middleware\AuthenticateKantinDevice::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
