@@ -62,4 +62,54 @@
         Selamat datang di Dashboard Administrator. Gunakan menu navigasi di sebelah kiri untuk mengelola master data santri, wali, tagihan keuangan, serta pengaturan aplikasi.
     </p>
 </div>
+
+@if($akademikStats)
+<div class="mt-8 max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-gray-800">Akademik Diniyah</h3>
+        @if($akademikStats['tahun_ajaran'])
+            <span class="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-calendar-days mr-1"></i>
+                {{ $akademikStats['tahun_ajaran']->nama }} - {{ ucfirst($akademikStats['tahun_ajaran']->semester) }}
+            </span>
+        @else
+            <span class="text-sm bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i>Belum ada tahun ajaran aktif
+            </span>
+        @endif
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-panel rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                <i class="fa-solid fa-school text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Total Kelas</p>
+                <h4 class="text-xl font-bold text-gray-800">{{ $akademikStats['total_kelas'] }}</h4>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                <i class="fa-solid fa-calendar-week text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Jadwal Pelajaran</p>
+                <h4 class="text-xl font-bold text-gray-800">{{ $akademikStats['total_jadwal'] }}</h4>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                <i class="fa-solid fa-user-graduate text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">Santri Terdaftar di Kelas</p>
+                <h4 class="text-xl font-bold text-gray-800">{{ $akademikStats['santri_terdaftar'] }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

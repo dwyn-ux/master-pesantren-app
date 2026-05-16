@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Akademik\AbsensiPelajaran;
+use App\Models\Akademik\JadwalPelajaran;
+use App\Models\Akademik\Kelas;
+use App\Models\Akademik\KelasSantri;
+use App\Models\Akademik\TahunAjaran;
 use App\Models\Order;
 use App\Models\Perizinan;
 use App\Models\Produk;
@@ -9,23 +14,39 @@ use App\Models\Santri;
 use App\Models\Tagihan;
 use App\Models\Ustadz;
 use App\Models\Wali;
+use App\Services\FeatureManager;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function admin(): View
     {
+        $features = app(FeatureManager::class);
+        $taActive = TahunAjaran::active();
+
         $stats = [
             "santri_aktif" => Santri::where("is_aktif", true)->count(),
-            "total_wali" => Wali::count(),
+            "total_wali"   => Wali::count(),
             "total_ustadz" => Ustadz::count(),
-            "tagihan_belum_bayar" => Tagihan::where(
-                "status",
-                "belum_bayar",
-            )->count(),
+            "tagihan_belum_bayar" => $features->enabled('tagihan')
+                ? Tagihan::where("status", "belum_bayar")->count()
+                : 0,
         ];
 
-        return view("admin.dashboard", compact("stats"));
+        // Stats akademik (kalau fitur aktif)
+        $akademikStats = null;
+        if ($features->enabled('akademik_master')) {
+            $akademikStats = [
+                'total_kelas'  => Kelas::count(),
+                'total_jadwal' => JadwalPelajaran::when($taActive, fn ($q) => $q->where('tahun_ajaran_id', $taActive->id))->count(),
+                'santri_terdaftar' => $taActive
+                    ? KelasSantri::where('tahun_ajaran_id', $taActive->id)->count()
+                    : 0,
+                'tahun_ajaran' => $taActive,
+            ];
+        }
+
+        return view("admin.dashboard", compact('stats', 'akademikStats'));
     }
 
     public function bendahara(): View
@@ -55,7 +76,52 @@ class DashboardController extends Controller
 
     public function ustadz(): View
     {
-        return view("dashboard.index", ["role" => "Ustadz"]);
+        $features = app(FeatureManager::class);
+        $ustadzId = auth()->user()->ustadz?->id;
+        $taActive = TahunAjaran::active();
+
+        $stats = [
+            'kelas_diampu'   => 0,
+            'jadwal_hari_ini'=> 0,
+            'kelas_walikan'  => 0,
+            'absensi_minggu_ini' => 0,
+        ];
+
+        $jadwalHariIni = collect();
+        $kelasWalikan  = collect();
+
+        if ($ustadzId && $features->enabled('akademik_master')) {
+            $hariMap = ['Sunday' => 'minggu', 'Monday' => 'senin', 'Tuesday' => 'selasa', 'Wednesday' => 'rabu', 'Thursday' => 'kamis', 'Friday' => 'jumat', 'Saturday' => 'sabtu'];
+            $hari = $hariMap[now()->format('l')] ?? 'senin';
+
+            $jadwalHariIni = JadwalPelajaran::where('ustadz_id', $ustadzId)
+                ->when($taActive, fn ($q) => $q->where('tahun_ajaran_id', $taActive->id))
+                ->where('hari', $hari)
+                ->with(['kelas.tingkat', 'mataPelajaran'])
+                ->orderBy('jam_mulai')
+                ->get();
+
+            $stats['jadwal_hari_ini'] = $jadwalHariIni->count();
+
+            $stats['kelas_diampu'] = JadwalPelajaran::where('ustadz_id', $ustadzId)
+                ->when($taActive, fn ($q) => $q->where('tahun_ajaran_id', $taActive->id))
+                ->distinct('kelas_id')
+                ->count('kelas_id');
+
+            $kelasWalikan = Kelas::where('wali_kelas_id', $ustadzId)
+                ->with(['tingkat', 'santri'])
+                ->get();
+
+            $stats['kelas_walikan'] = $kelasWalikan->count();
+
+            if ($features->enabled('akademik_absensi')) {
+                $stats['absensi_minggu_ini'] = AbsensiPelajaran::whereHas('jadwal', fn ($q) => $q->where('ustadz_id', $ustadzId))
+                    ->whereBetween('tanggal', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->count();
+            }
+        }
+
+        return view('ustadz.dashboard', compact('stats', 'jadwalHariIni', 'kelasWalikan', 'taActive'));
     }
 
     public function wali(): View
