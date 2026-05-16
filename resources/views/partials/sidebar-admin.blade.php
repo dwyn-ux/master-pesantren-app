@@ -49,6 +49,20 @@
         <i class="fa-solid fa-book-bookmark w-5 text-center"></i>
         <span class="font-medium text-sm">Mata Pelajaran</span>
     </a>
+    <a href="{{ route('admin.akademik.jadwal-pelajaran.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.jadwal-pelajaran*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-calendar w-5 text-center"></i>
+        <span class="font-medium text-sm">Jadwal Pelajaran</span>
+    </a>
+    @feature('akademik_penilaian')
+    <a href="{{ route('admin.akademik.komponen-nilai.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.komponen-nilai*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-percent w-5 text-center"></i>
+        <span class="font-medium text-sm">Komponen Nilai</span>
+    </a>
+    <a href="{{ route('admin.akademik.kkm.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.kkm*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-gauge-high w-5 text-center"></i>
+        <span class="font-medium text-sm">KKM</span>
+    </a>
+    @endfeature
     @feature('akademik_raport')
     <a href="{{ route('admin.akademik.raport.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.akademik.raport*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-file-pdf w-5 text-center"></i>

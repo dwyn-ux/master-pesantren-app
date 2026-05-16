@@ -61,6 +61,12 @@
             <span class="font-medium text-sm">Halaqah Diniyah</span>
         </a>
         @endfeature
+        @feature('akademik_raport')
+        <a href="{{ route('ustadz.akademik.wali-kelas.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('ustadz.akademik.wali-kelas*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+            <i class="fa-solid fa-user-tie w-5 text-center"></i>
+            <span class="font-medium text-sm">Wali Kelas (Sikap)</span>
+        </a>
+        @endfeature
     </div>
 </div>
 @endfeatureany

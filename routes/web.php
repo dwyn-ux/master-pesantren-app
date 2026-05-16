@@ -281,6 +281,21 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
                     ->name("mata-pelajaran.kitab.store");
                 Route::delete("mata-pelajaran/{mataPelajaran}/kitab/{kitab}", [\App\Http\Controllers\Admin\Akademik\MataPelajaranController::class, "destroyKitab"])
                     ->name("mata-pelajaran.kitab.destroy");
+
+                Route::resource("jadwal-pelajaran", \App\Http\Controllers\Admin\Akademik\JadwalPelajaranController::class)
+                    ->except(["show"])
+                    ->parameters(["jadwal-pelajaran" => "jadwalPelajaran"]);
+            });
+
+            // Komponen Nilai & KKM
+            Route::middleware("feature:akademik_penilaian")->group(function () {
+                Route::get("komponen-nilai", [\App\Http\Controllers\Admin\Akademik\KomponenNilaiController::class, "index"])->name("komponen-nilai.index");
+                Route::post("komponen-nilai", [\App\Http\Controllers\Admin\Akademik\KomponenNilaiController::class, "store"])->name("komponen-nilai.store");
+                Route::put("komponen-nilai/{komponenNilai}", [\App\Http\Controllers\Admin\Akademik\KomponenNilaiController::class, "update"])->name("komponen-nilai.update");
+                Route::delete("komponen-nilai/{komponenNilai}", [\App\Http\Controllers\Admin\Akademik\KomponenNilaiController::class, "destroy"])->name("komponen-nilai.destroy");
+
+                Route::get("kkm", [\App\Http\Controllers\Admin\Akademik\KkmController::class, "index"])->name("kkm.index");
+                Route::post("kkm", [\App\Http\Controllers\Admin\Akademik\KkmController::class, "store"])->name("kkm.store");
             });
 
             // Kenaikan Kelas
@@ -435,6 +450,14 @@ Route::middleware(["auth", "must.change.pw", "role:ustadz|admin"])
                 Route::post("/halaqah-diniyah/{halaqah}/setoran", [\App\Http\Controllers\Ustadz\Akademik\HalaqahDiniyahController::class, "storeSetoran"])->name("halaqah-diniyah.store-setoran");
                 Route::get("/halaqah-diniyah/{halaqah}/khataman", [\App\Http\Controllers\Ustadz\Akademik\HalaqahDiniyahController::class, "khataman"])->name("halaqah-diniyah.khataman");
                 Route::post("/halaqah-diniyah/{halaqah}/khataman", [\App\Http\Controllers\Ustadz\Akademik\HalaqahDiniyahController::class, "storeKhataman"])->name("halaqah-diniyah.store-khataman");
+            });
+
+            // Wali Kelas (penilaian sikap & catatan)
+            Route::middleware("feature:akademik_raport")->group(function () {
+                Route::get("/wali-kelas", [\App\Http\Controllers\Ustadz\Akademik\WaliKelasController::class, "index"])->name("wali-kelas.index");
+                Route::get("/wali-kelas/{kelas}", [\App\Http\Controllers\Ustadz\Akademik\WaliKelasController::class, "show"])->name("wali-kelas.show");
+                Route::get("/wali-kelas/{kelas}/santri/{santri}/sikap", [\App\Http\Controllers\Ustadz\Akademik\WaliKelasController::class, "sikap"])->name("wali-kelas.sikap");
+                Route::post("/wali-kelas/{kelas}/santri/{santri}/sikap", [\App\Http\Controllers\Ustadz\Akademik\WaliKelasController::class, "storeSikap"])->name("wali-kelas.store-sikap");
             });
         });
     });
