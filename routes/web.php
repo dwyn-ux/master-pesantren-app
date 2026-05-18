@@ -569,6 +569,7 @@ Route::middleware(["auth", "must.change.pw", "role:wali"])
         // Tagihan
         Route::middleware("feature:tagihan")->group(function () {
             Route::get("/tagihan", [\App\Http\Controllers\Wali\TagihanController::class, "index"])->name("tagihan.index");
+            Route::get("/tagihan/poll", [\App\Http\Controllers\Wali\TagihanController::class, "pollStatus"])->name("tagihan.poll");
             Route::get("/tagihan/{tagihan}/bayar", [\App\Http\Controllers\Wali\TagihanController::class, "pay"])->name("tagihan.pay");
             Route::post("/tagihan/{tagihan}/bayar", [\App\Http\Controllers\Wali\TagihanController::class, "processPayment"])->name("tagihan.pay.process");
             Route::get("/tagihan/{tagihan}/status", [\App\Http\Controllers\Wali\TagihanController::class, "show"])->name("tagihan.show");

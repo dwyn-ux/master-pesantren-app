@@ -325,6 +325,25 @@ class TagihanController extends Controller
         }
     }
 
+    public function pollStatus(Request $request): JsonResponse
+    {
+        $wali = auth()->user()->wali;
+        if (!$wali) return response()->json([], 403);
+
+        $ids = $request->input('ids', []);
+        if (empty($ids)) return response()->json([]);
+
+        $santriIds = $wali->santri->pluck('id');
+
+        $tagihans = Tagihan::whereIn('id', $ids)
+            ->whereIn('santri_id', $santriIds)
+            ->get(['id', 'status']);
+
+        return response()->json(
+            $tagihans->mapWithKeys(fn($t) => [$t->id => $t->status])
+        );
+    }
+
     private function hasTripayConfig(PaymentSetting $setting): bool
     {
         return filled($setting->tripay_api_key)
