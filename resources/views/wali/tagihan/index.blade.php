@@ -327,6 +327,33 @@ function tagihanCheckout() {
             return new Intl.NumberFormat('id-ID').format(n);
         },
 
+        init() {
+            this._pollInterval = setInterval(() => this.pollStatus(), 5000);
+        },
+
+        destroy() {
+            clearInterval(this._pollInterval);
+        },
+
+        async pollStatus() {
+            const pendingIds = @json($belumBayar->pluck('id'));
+            if (!pendingIds.length) return;
+
+            try {
+                const res = await fetch('{{ route("wali.tagihan.poll") }}?ids[]=' + pendingIds.join('&ids[]='), {
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const anyPaid = Object.values(data).some(s => s === 'lunas');
+                if (anyPaid) {
+                    clearInterval(this._pollInterval);
+                    window.location.reload();
+                }
+            } catch (e) {}
+        },
+
         async doCheckout() {
             if (this.checkedCount === 0) {
                 this.errorMsg = 'Pilih minimal 1 tagihan untuk dibayar.';
