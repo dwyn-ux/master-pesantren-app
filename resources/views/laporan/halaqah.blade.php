@@ -126,7 +126,9 @@
                     <th class="px-5 py-3 font-medium">Santri</th>
                     <th class="px-5 py-3 font-medium">Penerima</th>
                     <th class="px-5 py-3 font-medium">Jenis</th>
-                    <th class="px-5 py-3 font-medium">Halaman</th>
+                    <th class="px-5 py-3 font-medium">Dari</th>
+                    <th class="px-5 py-3 font-medium">Sampai</th>
+                    <th class="px-5 py-3 font-medium text-center">Hlm</th>
                     <th class="px-5 py-3 font-medium">Status</th>
                 </tr>
             </thead>
@@ -141,7 +143,29 @@
                             {{ ucfirst($s->jenis) }}
                         </span>
                     </td>
-                    <td class="px-5 py-3 text-sm font-semibold text-gray-800">{{ $s->jumlah_halaman }}</td>
+                    <td class="px-5 py-3 text-sm text-gray-700">
+                        @if($s->surahAwal)
+                            <span class="font-medium">{{ $s->surahAwal->nama_latin }}</span>
+                            <span class="text-gray-400 text-xs"> ({{ $s->surahAwal->id }})</span>
+                            @if($s->ayat_awal)
+                                <span class="text-gray-500">: {{ $s->ayat_awal }}</span>
+                            @endif
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </td>
+                    <td class="px-5 py-3 text-sm text-gray-700">
+                        @if($s->surahAkhir)
+                            <span class="font-medium">{{ $s->surahAkhir->nama_latin }}</span>
+                            <span class="text-gray-400 text-xs"> ({{ $s->surahAkhir->id }})</span>
+                            @if($s->ayat_akhir)
+                                <span class="text-gray-500">: {{ $s->ayat_akhir }}</span>
+                            @endif
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
+                    </td>
+                    <td class="px-5 py-3 text-sm font-semibold text-gray-800 text-center">{{ $s->jumlah_halaman }}</td>
                     <td class="px-5 py-3">
                         <span class="px-2 py-0.5 rounded text-xs font-bold {{ $s->status === 'maqbul' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
                             {{ ucfirst($s->status) }}
@@ -149,7 +173,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" class="px-5 py-10 text-center text-gray-400 text-sm">Tidak ada data setoran pada periode ini.</td></tr>
+                <tr><td colspan="8" class="px-5 py-10 text-center text-gray-400 text-sm">Tidak ada data setoran pada periode ini.</td></tr>
                 @endforelse
             </tbody>
         </table>

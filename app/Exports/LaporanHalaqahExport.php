@@ -24,7 +24,7 @@ class LaporanHalaqahExport implements FromCollection, WithHeadings, WithStyles, 
 
     public function collection()
     {
-        $query = Setoran::with(['santri', 'penerima'])
+        $query = Setoran::with(['santri', 'penerima', 'surahAwal', 'surahAkhir'])
             ->whereBetween('tanggal', [$this->dari->toDateString(), $this->sampai->toDateString()])
             ->latest('tanggal');
 
@@ -39,6 +39,9 @@ class LaporanHalaqahExport implements FromCollection, WithHeadings, WithStyles, 
 
     public function map($row): array
     {
+        $surahAwal  = $row->surahAwal  ? "({$row->surahAwal->id}) {$row->surahAwal->nama_latin}"  : '-';
+        $surahAkhir = $row->surahAkhir ? "({$row->surahAkhir->id}) {$row->surahAkhir->nama_latin}" : '-';
+
         return [
             $row->tanggal instanceof \Carbon\Carbon
                 ? $row->tanggal->format('d/m/Y')
@@ -47,6 +50,10 @@ class LaporanHalaqahExport implements FromCollection, WithHeadings, WithStyles, 
             $row->santri?->nis  ?? '-',
             $row->penerima?->nama ?? '-',
             ucfirst($row->jenis),
+            $surahAwal,
+            $row->ayat_awal ?? '-',
+            $surahAkhir,
+            $row->ayat_akhir ?? '-',
             $row->jumlah_halaman,
             ucfirst($row->status),
         ];
@@ -60,6 +67,10 @@ class LaporanHalaqahExport implements FromCollection, WithHeadings, WithStyles, 
             'NIS',
             'Penerima / Ustadz',
             'Jenis',
+            'Surah Awal',
+            'Ayat Awal',
+            'Surah Akhir',
+            'Ayat Akhir',
             'Jumlah Halaman',
             'Status',
         ];
@@ -78,14 +89,18 @@ class LaporanHalaqahExport implements FromCollection, WithHeadings, WithStyles, 
             'C' => 16,
             'D' => 28,
             'E' => 12,
-            'F' => 16,
-            'G' => 12,
+            'F' => 26,
+            'G' => 10,
+            'H' => 26,
+            'I' => 10,
+            'J' => 16,
+            'K' => 12,
         ];
     }
 
     public function styles(Worksheet $sheet): array
     {
-        $lastCol = 'G';
+        $lastCol = 'K';
 
         $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
             'font'      => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],

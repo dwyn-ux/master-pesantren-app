@@ -197,6 +197,36 @@ class WaliController extends Controller
         ]);
     }
 
+    public function downloadAllCredentials()
+    {
+        $semuaWali = Wali::with(['user', 'santri'])->whereHas('user', fn($q) => $q->where('is_active', true))->orderBy('nama')->get();
+
+        $content  = "=== DAFTAR KREDENSIAL LOGIN ORANG TUA / WALI ===\n";
+        $content .= "Dicetak pada : " . now()->format('d/m/Y H:i') . "\n";
+        $content .= "Total Wali   : " . $semuaWali->count() . " akun\n";
+        $content .= "URL Login    : " . url('/login') . "\n";
+        $content .= str_repeat("=", 60) . "\n\n";
+
+        foreach ($semuaWali as $w) {
+            $santriPertama = $w->santri->first();
+            $passwordHint  = $santriPertama?->nis ?? '(sudah diubah)';
+            $namaAnak      = $w->santri->pluck('nama')->join(', ') ?: '-';
+
+            $content .= "Nama Wali  : {$w->nama}\n";
+            $content .= "No HP      : {$w->no_hp}\n";
+            $content .= "Santri     : {$namaAnak}\n";
+            $content .= "Username   : {$w->user->username}\n";
+            $content .= "Password   : {$passwordHint}\n";
+            $content .= "           (password default = NIS anak, ubah setelah login pertama)\n";
+            $content .= str_repeat("-", 50) . "\n";
+        }
+
+        return response($content, 200, [
+            'Content-Type'        => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="kredensial-semua-wali-' . now()->format('Ymd') . '.txt"',
+        ]);
+    }
+
     public function resetPassword(Wali $wali)
     {
         $password = Str::random(8);

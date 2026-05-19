@@ -148,6 +148,10 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
             WaliController::class,
             "downloadCredential",
         ])->name("wali.download-credential");
+        Route::get("wali/download-all-credentials", [
+            WaliController::class,
+            "downloadAllCredentials",
+        ])->name("wali.download-all-credentials");
         Route::post("wali/{wali}/toggle-status", [WaliController::class, "toggleStatus"])->name("wali.toggle-status");
         Route::delete("wali/{wali}/force", [WaliController::class, "forceDestroy"])->name("wali.force-destroy");
 

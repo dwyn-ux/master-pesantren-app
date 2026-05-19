@@ -98,7 +98,7 @@ class LaporanController extends Controller
 
         $halaqahList = Halaqah::with('ustadz')->orderBy('nama')->get();
 
-        $base = Setoran::with(['santri', 'penerima'])->whereBetween('tanggal', [$dari, $sampai]);
+        $base = Setoran::with(['santri', 'penerima', 'surahAwal', 'surahAkhir'])->whereBetween('tanggal', [$dari, $sampai]);
         if ($halaqahId) {
             $santriIds = Halaqah::find($halaqahId)?->santri()->pluck('santri.id') ?? collect();
             $base->whereIn('santri_id', $santriIds);

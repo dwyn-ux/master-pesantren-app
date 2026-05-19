@@ -29,9 +29,15 @@
 <div class="glass-panel rounded-2xl shadow-sm mb-6 overflow-hidden">
     <div class="border-b border-gray-100 bg-white/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h6 class="text-lg font-bold text-gray-800">Daftar Wali Santri</h6>
-        <a href="{{ route('admin.wali.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tambah Wali
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.wali.download-all-credentials') }}"
+               class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-file-arrow-down"></i> Download Semua Kredensial
+            </a>
+            <a href="{{ route('admin.wali.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Tambah Wali
+            </a>
+        </div>
     </div>
 
     <div class="p-6 border-b border-gray-100">

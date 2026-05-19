@@ -82,4 +82,44 @@
         @endforelse
     </tbody>
 </table>
+
+@if(isset($detailSetoran) && $detailSetoran->count())
+<h2>Rekap Setoran per Santri (Posisi Hafalan)</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Santri</th>
+            <th>Jenis</th>
+            <th>Dari</th>
+            <th>Sampai</th>
+            <th class="text-right">Hlm</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($detailSetoran as $s)
+            <tr>
+                <td style="white-space:nowrap;">{{ \Carbon\Carbon::parse($s->tanggal)->format('d/m/Y') }}</td>
+                <td>{{ $s->santri?->nama ?? '—' }}</td>
+                <td>{{ ucfirst($s->jenis) }}</td>
+                <td style="white-space:nowrap;">
+                    @if($s->surahAwal)
+                        {{ $s->surahAwal->nama_latin }} ({{ $s->surahAwal->id }}){{ $s->ayat_awal ? ': '.$s->ayat_awal : '' }}
+                    @else —
+                    @endif
+                </td>
+                <td style="white-space:nowrap;">
+                    @if($s->surahAkhir)
+                        {{ $s->surahAkhir->nama_latin }} ({{ $s->surahAkhir->id }}){{ $s->ayat_akhir ? ': '.$s->ayat_akhir : '' }}
+                    @else —
+                    @endif
+                </td>
+                <td class="text-right">{{ $s->jumlah_halaman }}</td>
+                <td>{{ ucfirst($s->status) }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+@endif
 @endsection

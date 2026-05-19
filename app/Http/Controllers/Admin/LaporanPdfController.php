@@ -91,6 +91,14 @@ class LaporanPdfController extends Controller
             ->limit(20)
             ->get();
 
+        // Detail setoran lengkap dengan posisi surah & ayat (max 200 baris)
+        $detailSetoran = Setoran::with(['santri', 'surahAwal', 'surahAkhir'])
+            ->whereBetween('tanggal', [$dari->toDateString(), $sampai->toDateString()])
+            ->orderBy('tanggal')
+            ->orderBy('santri_id')
+            ->limit(200)
+            ->get();
+
         $perHalaqah = Halaqah::with('ustadz')
             ->get()
             ->map(function ($h) use ($dari, $sampai) {
@@ -125,8 +133,9 @@ class LaporanPdfController extends Controller
             'santriUnik' => $santriUnik,
             'topHafalan' => $topHafalan,
             'perHalaqah' => $perHalaqah,
+            'detailSetoran' => $detailSetoran,
             'analysis' => $analysis,
-        ])->setPaper('a4', 'portrait');
+        ])->setPaper('a4', 'landscape');
 
         return $pdf->download('laporan-tahfidz-' . $dari->format('Ymd') . '-' . $sampai->format('Ymd') . '.pdf');
     }
