@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Wali;
 
 use App\Http\Controllers\Controller;
 use App\Models\Santri;
+use App\Models\User;
 use App\Models\VoiceNote;
 use App\Models\WalletTransaction;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class VoiceNoteController extends Controller
 {
+    public function __construct(protected NotificationService $notifier) {}
     public function index()
     {
         $wali = Auth::user()->wali;
@@ -137,6 +140,38 @@ class VoiceNoteController extends Controller
 
                 return $voiceNote;
             });
+
+            // Notifikasi ke ustadz halaqah santri (DB + FCM)
+            $santri->loadMissing('halaqah.ustadz.user');
+            foreach ($santri->halaqah as $halaqah) {
+                if ($halaqah->ustadz?->user) {
+                    $this->notifier->send(
+                        user: $halaqah->ustadz->user,
+                        type: 'voice_note_wali',
+                        title: "Pesan suara dari wali {$santri->nama}",
+                        body: "{$wali->nama} mengirim pesan suara untuk ananda {$santri->nama}.",
+                        data: [
+                            'voice_note_id' => (string) $voiceNote->id,
+                            'santri_id'     => (string) $santri->id,
+                        ],
+                    );
+                }
+            }
+
+            // Notifikasi ke admin
+            $adminUsers = User::role('admin')->get();
+            foreach ($adminUsers as $adminUser) {
+                $this->notifier->send(
+                    user: $adminUser,
+                    type: 'voice_note_wali',
+                    title: "Pesan suara dari wali {$santri->nama}",
+                    body: "{$wali->nama} mengirim pesan suara untuk ananda {$santri->nama}.",
+                    data: [
+                        'voice_note_id' => (string) $voiceNote->id,
+                        'santri_id'     => (string) $santri->id,
+                    ],
+                );
+            }
 
             return redirect()
                 ->route("wali.voice-note.success", $voiceNote)

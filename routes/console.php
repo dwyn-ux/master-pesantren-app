@@ -17,3 +17,8 @@ Schedule::command('reports:monthly')->hourly();
 
 // Finance reminders: hutang jatuh tempo, approval pending, budget alert
 Schedule::command('finance:reminders')->dailyAt('07:00');
+
+// Pengingat baca Al-Quran setelah Subuh (05:30) dan setelah Maghrib (18:15)
+// Waktu WIB (UTC+7) — server UTC, jadi dikurangi 7 jam
+Schedule::command('quran:reminder subuh')->dailyAt('22:30');   // 05:30 WIB
+Schedule::command('quran:reminder maghrib')->dailyAt('11:15'); // 18:15 WIB

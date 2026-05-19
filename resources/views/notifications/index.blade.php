@@ -21,13 +21,21 @@
                        : ($n->type === 'weekly_report' ? 'bg-teal-100 text-teal-600'
                        : ($n->type === 'monthly_report' ? 'bg-indigo-100 text-indigo-600'
                        : ($n->type === 'voice_note_ustadz' ? 'bg-emerald-100 text-emerald-600'
-                       : 'bg-gray-100 text-gray-500'))) }}">
+                       : ($n->type === 'voice_note_wali' ? 'bg-purple-100 text-purple-600'
+                       : ($n->type === 'tagihan_baru' ? 'bg-amber-100 text-amber-600'
+                       : ($n->type === 'quran_reminder' ? 'bg-green-100 text-green-600'
+                       : ($n->type === 'finance_reminder' || $n->type === 'finance_approval' || $n->type === 'budget_alert' ? 'bg-orange-100 text-orange-600'
+                       : 'bg-gray-100 text-gray-500')))))))) }}">
                     <i class="fa-solid
                         {{ $n->type === 'kesehatan' ? 'fa-heart-pulse'
                            : ($n->type === 'weekly_report' ? 'fa-chart-line'
                            : ($n->type === 'monthly_report' ? 'fa-calendar-days'
                            : ($n->type === 'voice_note_ustadz' ? 'fa-microphone'
-                           : 'fa-bell'))) }}"></i>
+                           : ($n->type === 'voice_note_wali' ? 'fa-microphone-lines'
+                           : ($n->type === 'tagihan_baru' ? 'fa-file-invoice-dollar'
+                           : ($n->type === 'quran_reminder' ? 'fa-book-quran'
+                           : ($n->type === 'finance_reminder' || $n->type === 'finance_approval' || $n->type === 'budget_alert' ? 'fa-triangle-exclamation'
+                           : 'fa-bell'))))))))  }}"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between">

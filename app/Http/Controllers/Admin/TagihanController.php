@@ -6,17 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\JenisTagihan;
 use App\Models\Santri;
 use App\Models\Tagihan;
-use App\Services\FirebaseNotificationService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class TagihanController extends Controller
 {
-    protected $firebaseService;
-
-    public function __construct(FirebaseNotificationService $firebaseService)
-    {
-        $this->firebaseService = $firebaseService;
-    }
+    public function __construct(protected NotificationService $notifier) {}
 
     public function index()
     {
@@ -81,20 +76,19 @@ class TagihanController extends Controller
             ]);
             $created++;
 
-            // Kirim Notifikasi ke Wali Santri
+            // Kirim Notifikasi ke Wali Santri (DB + FCM)
             $santriData = Santri::with('wali.user')->find($santriId);
             if ($santriData) {
                 foreach ($santriData->wali as $wali) {
-                    \Log::info('Mengecek notif untuk wali: ' . ($wali->user->name ?? 'Tanpa User') . ' | Token: ' . ($wali->user->fcm_token ?? 'KOSONG'));
-                    if ($wali->user && $wali->user->fcm_token) {
-                        $res = $this->firebaseService->sendToUser(
-                            $wali->user,
-                            'Tagihan Baru: ' . $jenis->nama,
-                            'Terdapat tagihan baru untuk ananda ' . $santriData->nama . ' sebesar Rp ' . number_format($nominal, 0, ',', '.'),
-                            ['type' => 'tagihan_baru', 'tagihan_id' => (string)$jenis->id]
-                        );
-                        \Log::info('Hasil kirim notif ke ' . $wali->user->name . ': ' . ($res ? 'SUKSES' : 'GAGAL'));
-                    }
+                    if (!$wali->user) continue;
+                    $this->notifier->send(
+                        user: $wali->user,
+                        type: 'tagihan_baru',
+                        title: 'Tagihan Baru: ' . $jenis->nama,
+                        body: 'Terdapat tagihan baru untuk ananda ' . $santriData->nama . ' sebesar Rp ' . number_format($nominal, 0, ',', '.'),
+                        data: ['type' => 'tagihan_baru', 'santri_id' => (string) $santriId],
+                        actionUrl: route('wali.tagihan.index'),
+                    );
                 }
             }
         }
