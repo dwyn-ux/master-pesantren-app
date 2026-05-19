@@ -230,42 +230,54 @@ class PrayerController extends Controller
             ]);
         }
 
-        $now = Carbon::now();
+        // Timezone dari API response (misal "Asia/Jakarta"), fallback WIB
+        $tz = $prayerTimes["meta"]["timezone"] ?? "Asia/Jakarta";
+
+        $now = Carbon::now($tz);
+        $todayDate = $now->format("Y-m-d");
+
         $prayers = [
-            "Fajr" => $prayerTimes["timings"]["Fajr"],
-            "Dhuhr" => $prayerTimes["timings"]["Dhuhr"],
-            "Asr" => $prayerTimes["timings"]["Asr"],
+            "Fajr"    => $prayerTimes["timings"]["Fajr"],
+            "Dhuhr"   => $prayerTimes["timings"]["Dhuhr"],
+            "Asr"     => $prayerTimes["timings"]["Asr"],
             "Maghrib" => $prayerTimes["timings"]["Maghrib"],
-            "Isha" => $prayerTimes["timings"]["Isha"],
+            "Isha"    => $prayerTimes["timings"]["Isha"],
         ];
 
         $nextPrayer = null;
-        $timeDiff = null;
+        $timeDiff   = null;
 
         foreach ($prayers as $name => $time) {
-            $prayerTime = Carbon::createFromFormat("H:i", $time);
+            // Buat waktu sholat di timezone yang sama dengan $now
+            $prayerTime = Carbon::createFromFormat(
+                "Y-m-d H:i",
+                $todayDate . " " . substr($time, 0, 5),
+                $tz
+            );
 
             if ($prayerTime->greaterThan($now)) {
                 $nextPrayer = $name;
-                $timeDiff = $now->diffInMinutes($prayerTime, false);
+                $timeDiff   = (int) $now->diffInMinutes($prayerTime, false);
                 break;
             }
         }
 
-        // If no prayer found today, get Fajr tomorrow
+        // Kalau semua sholat hari ini sudah lewat, ambil Subuh besok
         if (!$nextPrayer) {
             $nextPrayer = "Fajr";
-            $fajrTime = Carbon::createFromFormat(
-                "H:i",
-                $prayers["Fajr"],
+            $fajrTime   = Carbon::createFromFormat(
+                "Y-m-d H:i",
+                $todayDate . " " . substr($prayers["Fajr"], 0, 5),
+                $tz
             )->addDay();
-            $timeDiff = $now->diffInMinutes($fajrTime, false);
+            $timeDiff = (int) $now->diffInMinutes($fajrTime, false);
         }
 
         return response()->json([
-            "next_prayer" => $nextPrayer,
+            "next_prayer"    => $nextPrayer,
             "time_remaining" => $timeDiff,
-            "current_time" => $now->format("H:i"),
+            "current_time"   => $now->format("H:i"),
+            "timezone"       => $tz,
         ]);
     }
 }
