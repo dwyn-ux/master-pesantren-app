@@ -8,6 +8,10 @@
         <i class="fa-solid fa-sliders w-5 text-center"></i>
         <span class="font-medium text-sm">Manajemen Fitur</span>
     </a>
+    <a href="{{ route('superadmin.staff-password.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('superadmin.staff-password*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-key w-5 text-center"></i>
+        <span class="font-medium text-sm">Password Staff</span>
+    </a>
 </div>
 
 <div class="px-4 py-2 mt-2">

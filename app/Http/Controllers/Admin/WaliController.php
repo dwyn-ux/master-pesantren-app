@@ -56,13 +56,17 @@ class WaliController extends Controller
         }
 
         DB::transaction(function () use ($request) {
-            // Auto-generate username & password
-            $namaDepan = strtolower(preg_replace('/[^a-zA-Z]/', '', explode(' ', $request->nama)[0]));
-            $username  = $namaDepan . rand(100, 999);
+            // Gunakan NIS anak pertama sebagai username & password default
+            $santriPertama = Santri::find($request->santri_ids[0]);
+            $nisAnak       = $santriPertama?->nis ?? Str::random(8);
+
+            $username = $nisAnak;
+            // Jika NIS sudah dipakai user lain, tambahkan suffix
+            $suffix = 1;
             while (User::where('username', $username)->exists()) {
-                $username = $namaDepan . rand(100, 999);
+                $username = $nisAnak . '_' . $suffix++;
             }
-            $password = Str::random(8);
+            $password = $nisAnak; // password default = NIS anak pertama
 
             $user = User::create([
                 'name'           => $request->nama,
@@ -165,6 +169,32 @@ class WaliController extends Controller
 
         return redirect()->route('admin.wali.index')
             ->with('success', "Wali {$nama} berhasil dihapus permanen.");
+    }
+
+    public function downloadCredential(Wali $wali)
+    {
+        $username = $wali->user->username;
+        // Ambil NIS anak pertama sebagai password hint (password default = NIS anak pertama)
+        $santriPertama = $wali->santri->first();
+        $passwordHint  = $santriPertama?->nis ?? '(sudah diubah)';
+
+        $content  = "=== KREDENSIAL LOGIN ORANG TUA / WALI ===\n\n";
+        $content .= "Nama Wali   : {$wali->nama}\n";
+        $content .= "No HP       : {$wali->no_hp}\n";
+        $content .= "Santri      : " . $wali->santri->pluck('nama')->join(', ') . "\n\n";
+        $content .= "Username    : {$username}\n";
+        $content .= "Password    : {$passwordHint}\n";
+        $content .= "             (password default = NIS anak, ubah setelah login pertama)\n\n";
+        $content .= "URL Login   : " . url('/login') . "\n\n";
+        $content .= "===========================================\n";
+        $content .= "Dicetak pada: " . now()->format('d/m/Y H:i') . "\n";
+
+        $filename = 'kredensial-' . Str::slug($wali->nama) . '.txt';
+
+        return response($content, 200, [
+            'Content-Type'        => 'text/plain',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 
     public function resetPassword(Wali $wali)

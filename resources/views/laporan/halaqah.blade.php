@@ -17,6 +17,10 @@
        class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm">
         <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF Tahfidz + Analisis
     </a>
+    <a href="{{ route('laporan.excel.halaqah', array_filter(['dari' => $dari->format('Y-m-d'), 'sampai' => $sampai->format('Y-m-d'), 'halaqah_id' => $halaqahId])) }}"
+       class="ml-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium text-sm shadow-sm">
+        <i class="fa-solid fa-file-excel mr-1"></i> Download Excel
+    </a>
 </div>
 
 {{-- Filter --}}

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Exports\LaporanHalaqahExport;
+use App\Exports\LaporanKantinExport;
+use App\Exports\LaporanKeuanganExport;
+use App\Exports\LaporanLaundryExport;
 use App\Models\Halaqah;
 use App\Models\LaundryOrder;
 use App\Models\Outlet;
@@ -12,6 +16,7 @@ use App\Models\Tagihan;
 use App\Models\TransaksiKasir;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
@@ -229,5 +234,50 @@ class LaporanController extends Controller
             ->get();
 
         return view('admin.laporan.keuangan', compact('summary', 'recentPayments'));
+    }
+
+    // ── Excel Downloads ──────────────────────────────────────────────────────
+
+    public function excelHalaqah(Request $request)
+    {
+        $dari      = $request->dari   ? Carbon::parse($request->dari)->startOfDay()  : now()->startOfMonth();
+        $sampai    = $request->sampai ? Carbon::parse($request->sampai)->endOfDay()  : now()->endOfDay();
+        $halaqahId = $request->halaqah_id ? (int) $request->halaqah_id : null;
+
+        $filename = 'laporan-halaqah-' . $dari->format('Ymd') . '-' . $sampai->format('Ymd') . '.xlsx';
+
+        return Excel::download(new LaporanHalaqahExport($dari, $sampai, $halaqahId), $filename);
+    }
+
+    public function excelKantin(Request $request)
+    {
+        $dari     = $request->dari   ? Carbon::parse($request->dari)->startOfDay()  : now()->startOfMonth();
+        $sampai   = $request->sampai ? Carbon::parse($request->sampai)->endOfDay()  : now()->endOfDay();
+        $outletId = $request->outlet_id ? (int) $request->outlet_id : null;
+
+        $filename = 'laporan-kantin-' . $dari->format('Ymd') . '-' . $sampai->format('Ymd') . '.xlsx';
+
+        return Excel::download(new LaporanKantinExport($dari, $sampai, $outletId), $filename);
+    }
+
+    public function excelLaundry(Request $request)
+    {
+        $dari    = $request->dari   ? Carbon::parse($request->dari)->startOfDay()  : now()->startOfMonth();
+        $sampai  = $request->sampai ? Carbon::parse($request->sampai)->endOfDay()  : now()->endOfDay();
+        $status  = $request->status ?: null;
+
+        $filename = 'laporan-laundry-' . $dari->format('Ymd') . '-' . $sampai->format('Ymd') . '.xlsx';
+
+        return Excel::download(new LaporanLaundryExport($dari, $sampai, $status), $filename);
+    }
+
+    public function excelKeuangan(Request $request)
+    {
+        $dari   = $request->dari   ? Carbon::parse($request->dari)->startOfDay()  : now()->startOfMonth();
+        $sampai = $request->sampai ? Carbon::parse($request->sampai)->endOfDay()  : now()->endOfDay();
+
+        $filename = 'laporan-keuangan-' . $dari->format('Ymd') . '-' . $sampai->format('Ymd') . '.xlsx';
+
+        return Excel::download(new LaporanKeuanganExport($dari, $sampai), $filename);
     }
 }

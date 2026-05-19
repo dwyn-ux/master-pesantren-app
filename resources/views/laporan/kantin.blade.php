@@ -13,9 +13,13 @@
 @section('content')
 
 <div class="flex items-center justify-end mb-4">
-    <a href="{{ route('laporan.pdf.kantin', ['dari' => $dari->format('Y-m-d'), 'sampai' => $sampai->format('Y-m-d'), 'outlet_id' => $outletId]) }}"
+    <a href="{{ route('laporan.pdf.kantin', array_filter(['dari' => $dari->format('Y-m-d'), 'sampai' => $sampai->format('Y-m-d'), 'outlet_id' => $outletId])) }}"
        class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm">
         <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF + Analisis
+    </a>
+    <a href="{{ route('laporan.excel.kantin', array_filter(['dari' => $dari->format('Y-m-d'), 'sampai' => $sampai->format('Y-m-d'), 'outlet_id' => $outletId])) }}"
+       class="ml-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium text-sm shadow-sm">
+        <i class="fa-solid fa-file-excel mr-1"></i> Download Excel
     </a>
 </div>
 

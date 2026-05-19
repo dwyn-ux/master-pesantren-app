@@ -74,6 +74,13 @@
                     <p class="text-xs text-gray-500">Aktifkan / nonaktifkan modul aplikasi</p>
                 </div>
             </a>
+            <a href="{{ route('superadmin.staff-password.index') }}" class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition">
+                <i class="fa-solid fa-key text-purple-600 text-xl w-6"></i>
+                <div>
+                    <p class="font-semibold text-gray-800">Password Staff</p>
+                    <p class="text-xs text-gray-500">Reset / ubah password admin & staff</p>
+                </div>
+            </a>
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition">
                 <i class="fa-solid fa-gauge text-indigo-600 text-xl w-6"></i>
                 <div>

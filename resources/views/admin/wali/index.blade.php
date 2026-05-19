@@ -92,6 +92,9 @@
                                 <a href="{{ route('admin.wali.edit', $w) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors" title="Edit">
                                     <i class="fa-solid fa-pen-to-square text-sm"></i>
                                 </a>
+                                <a href="{{ route('admin.wali.download-credential', $w) }}" class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center transition-colors" title="Download Username & Password">
+                                    <i class="fa-solid fa-download text-sm"></i>
+                                </a>
                                 <form method="POST" action="{{ route('admin.wali.reset-password', $w) }}" class="inline-block" onsubmit="return confirm('Reset password untuk {{ $w->nama }}?')">
                                     @csrf
                                     <button type="submit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-colors" title="Reset password">

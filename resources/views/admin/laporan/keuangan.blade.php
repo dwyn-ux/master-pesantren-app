@@ -13,9 +13,14 @@
 @section('content')
 <div class="flex items-center justify-between mb-6">
     <p class="text-sm text-gray-500">Ringkasan tagihan & pembayaran pondok.</p>
-    <a href="{{ route('admin.laporan.pdf.keuangan') }}" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm">
-        <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
-    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.laporan.pdf.keuangan', ['dari' => request('dari', now()->startOfMonth()->format('Y-m-d')), 'sampai' => request('sampai', now()->format('Y-m-d'))]) }}" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-sm shadow-sm">
+            <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+        </a>
+        <a href="{{ route('admin.laporan.excel.keuangan', ['dari' => request('dari', now()->startOfMonth()->format('Y-m-d')), 'sampai' => request('sampai', now()->format('Y-m-d'))]) }}" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium text-sm shadow-sm">
+            <i class="fa-solid fa-file-excel mr-1"></i> Download Excel
+        </a>
+    </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

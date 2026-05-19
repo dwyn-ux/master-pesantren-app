@@ -101,6 +101,11 @@ Route::middleware(["auth", "must.change.pw", "role:superadmin"])
             "index",
         ])->name("dashboard");
 
+        // Staff Password Management
+        Route::get("/staff-password", [\App\Http\Controllers\Superadmin\StaffPasswordController::class, "index"])->name("staff-password.index");
+        Route::put("/staff-password/{user}", [\App\Http\Controllers\Superadmin\StaffPasswordController::class, "update"])->name("staff-password.update");
+        Route::patch("/staff-password/{user}/reset", [\App\Http\Controllers\Superadmin\StaffPasswordController::class, "resetToDefault"])->name("staff-password.reset");
+
         Route::get("/features", [
             \App\Http\Controllers\Superadmin\FeatureController::class,
             "index",
@@ -139,6 +144,10 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
             WaliController::class,
             "resetPassword",
         ])->name("wali.reset-password");
+        Route::get("wali/{wali}/download-credential", [
+            WaliController::class,
+            "downloadCredential",
+        ])->name("wali.download-credential");
         Route::post("wali/{wali}/toggle-status", [WaliController::class, "toggleStatus"])->name("wali.toggle-status");
         Route::delete("wali/{wali}/force", [WaliController::class, "forceDestroy"])->name("wali.force-destroy");
 
@@ -231,6 +240,12 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
             Route::get("laporan/pdf/kantin",   [\App\Http\Controllers\Admin\LaporanPdfController::class, "kantin"])->name("laporan.pdf.kantin");
             Route::get("laporan/pdf/laundry",  [\App\Http\Controllers\Admin\LaporanPdfController::class, "laundry"])->name("laporan.pdf.laundry");
         });
+
+        // Laporan Excel
+        Route::get("laporan/excel/halaqah",  [LaporanController::class, "excelHalaqah"])->name("laporan.excel.halaqah")->middleware("feature:halaqah");
+        Route::get("laporan/excel/kantin",   [LaporanController::class, "excelKantin"])->name("laporan.excel.kantin")->middleware("feature:kantin");
+        Route::get("laporan/excel/laundry",  [LaporanController::class, "excelLaundry"])->name("laporan.excel.laundry")->middleware("feature:laundry");
+        Route::get("laporan/excel/keuangan", [LaporanController::class, "excelKeuangan"])->name("laporan.excel.keuangan")->middleware("feature:tagihan");
 
         // Report Settings (pengaturan auto notifikasi mingguan & bulanan)
         Route::middleware("feature:laporan_otomatis")->group(function () {
@@ -664,6 +679,12 @@ Route::middleware(["auth", "must.change.pw", "role:admin|bendahara"])
             Route::get("pdf/kantin",   [\App\Http\Controllers\Admin\LaporanPdfController::class, "kantin"])->name("pdf.kantin");
             Route::get("pdf/laundry",  [\App\Http\Controllers\Admin\LaporanPdfController::class, "laundry"])->name("pdf.laundry");
         });
+
+        // Excel
+        Route::get("excel/halaqah",  [LaporanController::class, "excelHalaqah"])->name("excel.halaqah")->middleware("feature:halaqah");
+        Route::get("excel/kantin",   [LaporanController::class, "excelKantin"])->name("excel.kantin")->middleware("feature:kantin");
+        Route::get("excel/laundry",  [LaporanController::class, "excelLaundry"])->name("excel.laundry")->middleware("feature:laundry");
+        Route::get("excel/keuangan", [LaporanController::class, "excelKeuangan"])->name("excel.keuangan")->middleware("feature:tagihan");
     });
 
 // ── Notifications (semua user login) ──────────────────────────────────────────
