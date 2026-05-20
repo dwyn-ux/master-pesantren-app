@@ -30,24 +30,30 @@
 
                 <!-- Dropdown Results -->
                 <div x-show="showDropdown && searchResults.length > 0" @click.away="showDropdown = false"
-                     class="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-80 overflow-y-auto">
-                    <template x-for="item in searchResults" :key="item.type + item.id">
-                        <div @click="selectPatient(item)" class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-50 flex justify-between items-center transition-colors">
-                            <div>
-                                <div class="font-bold text-gray-800" x-text="item.nama"></div>
-                                <div class="text-xs text-gray-500">
-                                    <span x-show="item.nis" x-text="'NIS: ' + item.nis"></span>
-                                    <span x-show="item.nis && item.kelas"> · </span>
-                                    <span x-show="item.kelas" x-text="'Kelas ' + item.kelas"></span>
-                                    <span x-show="item.nik" x-text="(item.nis || item.kelas ? ' · NIK: ' : 'NIK: ') + item.nik"></span>
-                                    <span x-show="!item.nik && !item.nis && !item.kelas" class="italic text-gray-400">data belum lengkap</span>
+                     class="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="px-4 py-2 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-xs text-gray-500 font-medium" x-text="searchResults.length + ' pasien ditemukan'"></span>
+                        <span class="text-xs text-gray-400" x-show="searchQuery === ''">Ketik untuk filter</span>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto">
+                        <template x-for="item in searchResults" :key="item.type + item.id">
+                            <div @click="selectPatient(item)" class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-50 flex justify-between items-center transition-colors">
+                                <div>
+                                    <div class="font-bold text-gray-800" x-text="item.nama"></div>
+                                    <div class="text-xs text-gray-500">
+                                        <span x-show="item.nis" x-text="'NIS: ' + item.nis"></span>
+                                        <span x-show="item.nis && item.kelas"> · </span>
+                                        <span x-show="item.kelas" x-text="'Kelas ' + item.kelas"></span>
+                                        <span x-show="item.nik" x-text="(item.nis || item.kelas ? ' · NIK: ' : 'NIK: ') + item.nik"></span>
+                                        <span x-show="!item.nik && !item.nis && !item.kelas" class="italic text-gray-400">data belum lengkap</span>
+                                    </div>
                                 </div>
+                                <span class="px-2 py-1 text-xs rounded-lg font-medium shrink-0 ml-2"
+                                      :class="item.badge === 'Santri' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'"
+                                      x-text="item.badge"></span>
                             </div>
-                            <span class="px-2 py-1 text-xs rounded-lg font-medium" 
-                                  :class="item.badge === 'Santri' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'"
-                                  x-text="item.badge"></span>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
             </div>
 

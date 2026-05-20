@@ -24,12 +24,12 @@ class KlinikController extends Controller
     public function searchPatient(Request $request)
     {
         $term = trim((string) $request->q);
+
         if ($term === '') {
-            // Tidak ada keyword: kembalikan 20 santri aktif pertama supaya dropdown tetap bisa dibuka
+            // Tidak ada keyword: kembalikan semua santri aktif (urut nama)
             $santri = Santri::where('is_aktif', true)
                 ->orderBy('nama')
                 ->select('id', 'nama', 'nik', 'nis', 'kelas')
-                ->limit(20)
                 ->get()
                 ->map(fn($s) => [
                     'id'    => $s->id,
@@ -52,7 +52,6 @@ class KlinikController extends Controller
             })
             ->select('id', 'nama', 'nik', 'nis', 'kelas')
             ->orderBy('nama')
-            ->limit(15)
             ->get()
             ->map(fn($s) => [
                 'id'    => $s->id,
@@ -70,7 +69,6 @@ class KlinikController extends Controller
             })
             ->select('id', 'nama', 'nik')
             ->orderBy('nama')
-            ->limit(10)
             ->get()
             ->map(fn($u) => [
                 'id'    => $u->id,
