@@ -30,9 +30,9 @@
 
             {{-- Status konfirmasi --}}
             @if($kunjungan->wali_konfirmasi)
-                <div class="mt-3 flex items-center gap-2 text-sm font-semibold {{ $kunjungan->wali_konfirmasi === 'otw' ? 'text-amber-700' : 'text-green-700' }}">
-                    <i class="fa-solid {{ $kunjungan->wali_konfirmasi === 'otw' ? 'fa-car-side' : 'fa-circle-check' }}"></i>
-                    {{ $kunjungan->wali_konfirmasi === 'otw' ? 'Anda sudah konfirmasi: Sedang dalam perjalanan' : 'Anda sudah konfirmasi: Sudah ditangani' }}
+                <div class="mt-3 flex items-center gap-2 text-sm font-semibold {{ $kunjungan->wali_konfirmasi === 'otw' ? 'text-amber-700' : 'text-blue-700' }}">
+                    <i class="fa-solid {{ $kunjungan->wali_konfirmasi === 'otw' ? 'fa-car-side' : 'fa-calendar-day' }}"></i>
+                    {{ $kunjungan->wali_konfirmasi === 'otw' ? 'Anda sudah konfirmasi: Sedang dalam perjalanan' : 'Anda sudah konfirmasi: Insyaallah besok' }}
                     <span class="text-xs font-normal text-gray-500">({{ $kunjungan->wali_konfirmasi_at?->diffForHumans() }})</span>
                 </div>
                 @if($kunjungan->wali_konfirmasi_pesan)
@@ -40,14 +40,23 @@
                 @endif
             @else
                 {{-- Tombol konfirmasi --}}
-                <div class="mt-4">
-                    <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}">
+                <div class="mt-4 flex gap-2">
+                    <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="flex-1">
                         @csrf
                         <input type="hidden" name="status" value="otw">
                         <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
                         <button type="submit"
                                 class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
                             <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="flex-1">
+                        @csrf
+                        <input type="hidden" name="status" value="besok">
+                        <input type="hidden" name="pesan" value="Insyaallah besok saya jemput.">
+                        <button type="submit"
+                                class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-calendar-day"></i> Insyaallah, Besok
                         </button>
                     </form>
                 </div>

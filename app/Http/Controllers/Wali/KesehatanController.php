@@ -50,7 +50,7 @@ class KesehatanController extends Controller
         if (!$wali->santri->contains('id', $kunjungan->patient_id)) abort(403);
 
         $request->validate([
-            'status'  => 'required|in:otw',
+            'status'  => 'required|in:otw,besok',
             'pesan'   => 'nullable|string|max:300',
         ]);
 
@@ -60,11 +60,10 @@ class KesehatanController extends Controller
             'wali_konfirmasi_pesan'  => $request->pesan,
         ]);
 
-        // Label untuk notifikasi
-        $santri   = $kunjungan->patient;
+        $santri      = $kunjungan->patient;
         $labelStatus = $request->status === 'otw'
             ? '🚗 Sedang dalam perjalanan'
-            : '✅ Sudah ditangani';
+            : '📅 Insyaallah besok';
         $pesan = $request->pesan ? " — \"{$request->pesan}\"" : '';
 
         // Kirim notif ke ustadz pemeriksa
@@ -99,7 +98,7 @@ class KesehatanController extends Controller
 
         $msg = $request->status === 'otw'
             ? 'Konfirmasi terkirim. Ustadz sudah diberitahu bahwa Anda sedang dalam perjalanan.'
-            : 'Konfirmasi terkirim. Terima kasih atas responnya.';
+            : 'Konfirmasi terkirim. Ustadz sudah diberitahu.';
 
         return back()->with('success', $msg);
     }
