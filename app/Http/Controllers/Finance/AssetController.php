@@ -19,7 +19,7 @@ class AssetController extends Controller
         $query = Asset::with('account')->orderBy('kode');
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(fn($w) => $w->where('kode', 'like', "%$q%")->orWhere('nama', 'like', "%$q%"));
+            $query->where(fn($w) => $w->where('kode', 'ilike', "%$q%")->orWhere('nama', 'ilike', "%$q%"));
         }
         if ($request->filled('status')) {
             $query->where('status', $request->status);

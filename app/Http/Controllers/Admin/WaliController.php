@@ -17,8 +17,8 @@ class WaliController extends Controller
     {
         $wali = Wali::with('user', 'santri')
             ->when($request->search, fn($q) => $q
-                ->where('nama', 'like', "%{$request->search}%")
-                ->orWhere('no_hp', 'like', "%{$request->search}%"))
+                ->where('nama', 'ilike', "%{$request->search}%")
+                ->orWhere('no_hp', 'ilike', "%{$request->search}%"))
             ->latest()
             ->paginate(20)
             ->withQueryString();

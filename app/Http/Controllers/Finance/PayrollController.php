@@ -27,7 +27,7 @@ class PayrollController extends Controller
     {
         $query = Ustadz::with('latestSalary')->orderBy('nama');
         if ($request->filled('q')) {
-            $query->where('nama', 'like', '%' . $request->q . '%');
+            $query->where('nama', 'ilike', '%' . $request->q . '%');
         }
         $items = $query->paginate(50)->withQueryString();
         return view('finance.payroll.master_salary', compact('items'));

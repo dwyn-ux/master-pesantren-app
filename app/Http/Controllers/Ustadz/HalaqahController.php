@@ -67,7 +67,7 @@ class HalaqahController extends Controller
 
         $santri = Santri::whereIn('id', $santriIds)
             ->when($request->search, fn($q, $s) =>
-                $q->where('nama', 'like', "%$s%")->orWhere('nis', 'like', "%$s%"))
+                $q->where('nama', 'ilike', "%$s%")->orWhere('nis', 'ilike', "%$s%"))
             ->when($request->halaqah_id, fn($q, $id) =>
                 $q->whereHas('halaqah', fn($qh) => $qh->where('halaqah.id', $id)))
             ->with('halaqah')

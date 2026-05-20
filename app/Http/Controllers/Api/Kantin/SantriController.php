@@ -50,9 +50,9 @@ class SantriController extends Controller
 
         if ($q) {
             $results = $query->where(function ($w) use ($q) {
-                $w->where('nama', 'like', "%{$q}%")
-                  ->orWhere('nis', 'like', "%{$q}%")
-                  ->orWhere('kelas', 'like', "%{$q}%");
+                $w->where('nama', 'ilike', "%{$q}%")
+                  ->orWhere('nis', 'ilike', "%{$q}%")
+                  ->orWhere('kelas', 'ilike', "%{$q}%");
             })->limit(20)->get();
 
             return response()->json([

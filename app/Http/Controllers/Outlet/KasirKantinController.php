@@ -161,7 +161,7 @@ class KasirKantinController extends Controller
             ->where('outlet_id', $outlet->id)
             ->when($request->search, function ($query) use ($request) {
                 $search = $request->search;
-                $query->whereHas('santri', fn ($q) => $q->where('nama', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
+                $query->whereHas('santri', fn ($q) => $q->where('nama', 'ilike', "%{$search}%")->orWhere('nis', 'ilike', "%{$search}%"));
             })
             ->latest('created_at')
             ->paginate(20)

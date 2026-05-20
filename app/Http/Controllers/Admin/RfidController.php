@@ -13,9 +13,9 @@ class RfidController extends Controller
     {
         $santri = Santri::query()
             ->when($request->search, fn($q) => $q
-                ->where('nama', 'like', "%{$request->search}%")
-                ->orWhere('nis', 'like', "%{$request->search}%")
-                ->orWhere('rfid_uid', 'like', "%{$request->search}%"))
+                ->where('nama', 'ilike', "%{$request->search}%")
+                ->orWhere('nis', 'ilike', "%{$request->search}%")
+                ->orWhere('rfid_uid', 'ilike', "%{$request->search}%"))
             ->when($request->status === 'no-rfid', fn($q) => $q->whereNull('rfid_uid'))
             ->when($request->status === 'with-rfid', fn($q) => $q->whereNotNull('rfid_uid'))
             ->latest()

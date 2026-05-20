@@ -19,7 +19,7 @@ class SantriFinanceController extends Controller
         $query = Santri::query()->orderBy('nama');
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(fn($w) => $w->where('nama', 'like', "%$q%")->orWhere('nis', 'like', "%$q%"));
+            $query->where(fn($w) => $w->where('nama', 'ilike', "%$q%")->orWhere('nis', 'ilike', "%$q%"));
         }
         $items = $query->paginate(50)->withQueryString();
 

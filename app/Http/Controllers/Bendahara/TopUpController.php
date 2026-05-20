@@ -15,10 +15,10 @@ class TopUpController extends Controller
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($inner) use ($request) {
                     $inner->whereHas('santri', fn($s) => $s
-                        ->where('nama', 'like', "%{$request->search}%")
-                        ->orWhere('nis', 'like', "%{$request->search}%")
+                        ->where('nama', 'ilike', "%{$request->search}%")
+                        ->orWhere('nis', 'ilike', "%{$request->search}%")
                     )->orWhereHas('wali', fn($w) => $w
-                        ->where('nama', 'like', "%{$request->search}%")
+                        ->where('nama', 'ilike', "%{$request->search}%")
                     );
                 });
             })

@@ -12,9 +12,9 @@ class SantriController extends Controller
     {
         $santri = Santri::query()
             ->when($request->search, fn($q) => $q
-                ->where('nama', 'like', "%{$request->search}%")
-                ->orWhere('nis', 'like', "%{$request->search}%")
-                ->orWhere('nik', 'like', "%{$request->search}%"))
+                ->where('nama', 'ilike', "%{$request->search}%")
+                ->orWhere('nis', 'ilike', "%{$request->search}%")
+                ->orWhere('nik', 'ilike', "%{$request->search}%"))
             ->when($request->status === 'aktif', fn($q) => $q->where('is_aktif', true))
             ->when($request->status === 'nonaktif', fn($q) => $q->where('is_aktif', false))
             ->latest()

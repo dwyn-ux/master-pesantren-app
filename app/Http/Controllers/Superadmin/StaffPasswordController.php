@@ -20,8 +20,8 @@ class StaffPasswordController extends Controller
     {
         $users = User::with('roles')
             ->whereHas('roles', fn($q) => $q->whereIn('name', $this->staffRoles))
-            ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%")
-                ->orWhere('username', 'like', "%{$request->search}%"))
+            ->when($request->search, fn($q) => $q->where('name', 'ilike', "%{$request->search}%")
+                ->orWhere('username', 'ilike', "%{$request->search}%"))
             ->when($request->role, fn($q) => $q->whereHas('roles', fn($r) => $r->where('name', $request->role)))
             ->orderBy('name')
             ->paginate(20)

@@ -45,10 +45,10 @@ class KlinikController extends Controller
 
         $santri = Santri::where('is_aktif', true)
             ->where(function ($q) use ($term) {
-                $q->where('nama', 'like', "%{$term}%")
-                  ->orWhere('nik',  'like', "%{$term}%")
-                  ->orWhere('nis',  'like', "%{$term}%")
-                  ->orWhere('kelas','like', "%{$term}%");
+                $q->where('nama', 'ilike', "%{$term}%")
+                  ->orWhere('nik',  'ilike', "%{$term}%")
+                  ->orWhere('nis',  'ilike', "%{$term}%")
+                  ->orWhere('kelas','ilike', "%{$term}%");
             })
             ->select('id', 'nama', 'nik', 'nis', 'kelas')
             ->orderBy('nama')
@@ -64,8 +64,8 @@ class KlinikController extends Controller
             ]);
 
         $ustadz = Ustadz::where(function ($q) use ($term) {
-                $q->where('nama', 'like', "%{$term}%")
-                  ->orWhere('nik', 'like', "%{$term}%");
+                $q->where('nama', 'ilike', "%{$term}%")
+                  ->orWhere('nik', 'ilike', "%{$term}%");
             })
             ->select('id', 'nama', 'nik')
             ->orderBy('nama')

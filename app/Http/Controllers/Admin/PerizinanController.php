@@ -15,8 +15,8 @@ class PerizinanController extends Controller
         if ($request->search) {
             $query->whereHas('santri', function ($q) use ($request) {
                 $q->where(function ($inner) use ($request) {
-                    $inner->where('nama', 'like', "%{$request->search}%")
-                          ->orWhere('nis', 'like', "%{$request->search}%");
+                    $inner->where('nama', 'ilike', "%{$request->search}%")
+                          ->orWhere('nis', 'ilike', "%{$request->search}%");
                 });
             });
         }

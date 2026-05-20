@@ -16,7 +16,7 @@ class ProdukController extends Controller
         $outlet = $this->kantinOutlet();
 
         $produk = Produk::where('outlet_id', $outlet->id)
-            ->when($request->search, fn ($query) => $query->where('nama', 'like', "%{$request->search}%")->orWhere('barcode', 'like', "%{$request->search}%"))
+            ->when($request->search, fn ($query) => $query->where('nama', 'ilike', "%{$request->search}%")->orWhere('barcode', 'ilike', "%{$request->search}%"))
             ->when($request->status === 'aktif', fn ($query) => $query->where('is_aktif', true))
             ->when($request->status === 'nonaktif', fn ($query) => $query->where('is_aktif', false))
             ->orderBy('nama')

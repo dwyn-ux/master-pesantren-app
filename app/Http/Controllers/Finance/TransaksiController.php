@@ -35,9 +35,9 @@ class TransaksiController extends Controller
         }
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(fn($w) => $w->where('nomor', 'like', "%$q%")
-                ->orWhere('pihak', 'like', "%$q%")
-                ->orWhere('keterangan', 'like', "%$q%"));
+            $query->where(fn($w) => $w->where('nomor', 'ilike', "%$q%")
+                ->orWhere('pihak', 'ilike', "%$q%")
+                ->orWhere('keterangan', 'ilike', "%$q%"));
         }
 
         $items    = $query->paginate(25)->withQueryString();

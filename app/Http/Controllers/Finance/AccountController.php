@@ -16,7 +16,7 @@ class AccountController extends Controller
 
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(fn($w) => $w->where('kode', 'like', "%$q%")->orWhere('nama', 'like', "%$q%"));
+            $query->where(fn($w) => $w->where('kode', 'ilike', "%$q%")->orWhere('nama', 'ilike', "%$q%"));
         }
         if ($request->filled('tipe')) {
             $query->where('tipe', $request->tipe);

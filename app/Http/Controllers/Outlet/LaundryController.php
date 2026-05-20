@@ -24,8 +24,8 @@ class LaundryController extends Controller
             ->when($request->status, fn ($query) => $query->where('status', $request->status))
             ->when($request->search, function ($query) use ($request) {
                 $search = $request->search;
-                $query->where('nomor_tiket', 'like', "%{$search}%")
-                    ->orWhereHas('santri', fn ($q) => $q->where('nama', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
+                $query->where('nomor_tiket', 'ilike', "%{$search}%")
+                    ->orWhereHas('santri', fn ($q) => $q->where('nama', 'ilike', "%{$search}%")->orWhere('nis', 'ilike', "%{$search}%"));
             })
             ->latest('created_at')
             ->paginate(20)

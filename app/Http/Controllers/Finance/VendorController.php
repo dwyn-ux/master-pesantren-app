@@ -15,7 +15,7 @@ class VendorController extends Controller
         $query = Vendor::orderBy('nama');
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(fn($w) => $w->where('nama', 'like', "%$q%")->orWhere('kode', 'like', "%$q%"));
+            $query->where(fn($w) => $w->where('nama', 'ilike', "%$q%")->orWhere('kode', 'ilike', "%$q%"));
         }
         $items = $query->paginate(25)->withQueryString();
         return view('finance.vendors.index', compact('items'));

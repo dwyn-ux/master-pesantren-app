@@ -12,8 +12,8 @@ class LimitUangSakuController extends Controller
     {
         $santri = Santri::query()
             ->when($request->search, fn($q) => $q
-                ->where('nama', 'like', "%{$request->search}%")
-                ->orWhere('nis', 'like', "%{$request->search}%"))
+                ->where('nama', 'ilike', "%{$request->search}%")
+                ->orWhere('nis', 'ilike', "%{$request->search}%"))
             ->where('is_aktif', true)
             ->orderBy('nama')
             ->paginate(20)

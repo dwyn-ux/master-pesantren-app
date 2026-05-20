@@ -16,8 +16,8 @@ class FingerprintController extends Controller
     {
         $santri = Santri::query()
             ->when($request->search, fn($q) => $q
-                ->where('nama', 'like', "%{$request->search}%")
-                ->orWhere('nis', 'like', "%{$request->search}%"))
+                ->where('nama', 'ilike', "%{$request->search}%")
+                ->orWhere('nis', 'ilike', "%{$request->search}%"))
             ->when($request->status === 'no-fingerprint', fn($q) => $q->whereNull('fingerprint_id'))
             ->when($request->status === 'with-fingerprint', fn($q) => $q->whereNotNull('fingerprint_id'))
             ->latest()

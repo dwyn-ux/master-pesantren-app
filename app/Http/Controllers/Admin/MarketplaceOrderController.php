@@ -17,8 +17,8 @@ class MarketplaceOrderController extends Controller
                 $search = $request->search;
 
                 $query->where('id', $search)
-                    ->orWhereHas('wali', fn ($q) => $q->where('nama', 'like', "%{$search}%"))
-                    ->orWhereHas('tujuanSantri', fn ($q) => $q->where('nama', 'like', "%{$search}%")->orWhere('nis', 'like', "%{$search}%"));
+                    ->orWhereHas('wali', fn ($q) => $q->where('nama', 'ilike', "%{$search}%"))
+                    ->orWhereHas('tujuanSantri', fn ($q) => $q->where('nama', 'ilike', "%{$search}%")->orWhere('nis', 'ilike', "%{$search}%"));
             })
             ->latest()
             ->paginate(20)
