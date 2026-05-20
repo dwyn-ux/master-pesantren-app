@@ -264,17 +264,46 @@
             {{-- Kesehatan Section --}}
             @if($rekap['kesehatan']->isNotEmpty())
             <div class="space-y-3">
-                <div class="flex items-center gap-2 text-blue-600 font-bold uppercase text-xs tracking-wider">
-                    <i class="fa-solid fa-heart-pulse"></i> Catatan Kesehatan
+                <div class="flex items-center gap-2 text-red-600 font-bold uppercase text-xs tracking-wider">
+                    <i class="fa-solid fa-heart-pulse"></i> Perhatian — Kondisi Kesehatan Santri
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-3">
                     @foreach($rekap['kesehatan'] as $kes)
-                    <div class="p-4 rounded-2xl bg-blue-50 border border-blue-100">
-                        <div class="flex justify-between items-start mb-1">
-                            <span class="font-bold text-blue-900 text-sm">{{ $kes->keluhan }}</span>
-                            <span class="text-[10px] bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full uppercase font-bold">{{ $kes->status_pengobatan }}</span>
+                    <div class="p-4 rounded-2xl bg-red-50 border border-red-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-bold text-red-900 text-sm">{{ $kes->patient?->nama }}</span>
+                                <span class="ml-2 text-[10px] bg-red-200 text-red-800 px-2 py-0.5 rounded-full uppercase font-bold">
+                                    {{ $kes->perlu_rujuk ? 'Perlu Dirujuk' : 'Dirawat di Rumah' }}
+                                </span>
+                            </div>
+                            <span class="text-[10px] text-red-500">{{ $kes->tanggal_kunjungan?->diffForHumans() }}</span>
                         </div>
-                        <p class="text-xs text-blue-700">{{ $kes->diagnosa }}</p>
+                        <p class="text-xs text-red-700 mb-1"><strong>Diagnosa:</strong> {{ $kes->diagnosa }}</p>
+                        @if($kes->catatan_ortu)
+                        <p class="text-xs text-red-600 mb-3"><strong>Pesan ustadz:</strong> {{ $kes->catatan_ortu }}</p>
+                        @endif
+                        {{-- Tombol konfirmasi langsung dari popup --}}
+                        <div class="flex gap-2 mt-2" x-data="{ loading: false, done: false }">
+                            <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kes) }}"
+                                  @submit.prevent="loading = true; $el.submit()" class="flex-1">
+                                @csrf
+                                <input type="hidden" name="status" value="otw">
+                                <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
+                                <button type="submit" :disabled="loading"
+                                        class="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kes) }}" class="flex-1">
+                                @csrf
+                                <input type="hidden" name="status" value="selesai">
+                                <button type="submit"
+                                        class="w-full py-2 px-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-check"></i> Sudah Ditangani
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     @endforeach
                 </div>

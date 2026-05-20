@@ -16,8 +16,9 @@
         @forelse($notifications as $n)
             @php
                 $iconMap = [
-                    'kesehatan'        => ['bg' => 'bg-red-100 text-red-600',     'icon' => 'fa-heart-pulse'],
-                    'weekly_report'    => ['bg' => 'bg-teal-100 text-teal-600',   'icon' => 'fa-chart-line'],
+                    'kesehatan'           => ['bg' => 'bg-red-100 text-red-600',      'icon' => 'fa-heart-pulse'],
+                    'konfirmasi_kesehatan'=> ['bg' => 'bg-amber-100 text-amber-600',  'icon' => 'fa-car-side'],
+                    'weekly_report'       => ['bg' => 'bg-teal-100 text-teal-600',    'icon' => 'fa-chart-line'],
                     'monthly_report'   => ['bg' => 'bg-indigo-100 text-indigo-600','icon' => 'fa-calendar-days'],
                     'voice_note_ustadz'=> ['bg' => 'bg-emerald-100 text-emerald-600','icon' => 'fa-microphone'],
                     'voice_note_wali'  => ['bg' => 'bg-purple-100 text-purple-600','icon' => 'fa-microphone-lines'],

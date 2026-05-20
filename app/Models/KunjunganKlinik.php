@@ -16,16 +16,18 @@ class KunjunganKlinik extends Model
         'diagnosa', 'tindakan_obat', 'status_pengobatan', 'lama_istirahat_hari',
         'pemeriksa_id',
         'perlu_rujuk', 'perlu_dirawat_ortu', 'catatan_ortu', 'notified_at',
+        'wali_konfirmasi', 'wali_konfirmasi_at', 'wali_konfirmasi_pesan',
     ];
 
     protected function casts(): array
     {
         return [
-            'tanggal_kunjungan' => 'datetime',
+            'tanggal_kunjungan'   => 'datetime',
             'lama_istirahat_hari' => 'integer',
-            'perlu_rujuk' => 'boolean',
-            'perlu_dirawat_ortu' => 'boolean',
-            'notified_at' => 'datetime',
+            'perlu_rujuk'         => 'boolean',
+            'perlu_dirawat_ortu'  => 'boolean',
+            'notified_at'         => 'datetime',
+            'wali_konfirmasi_at'  => 'datetime',
         ];
     }
 

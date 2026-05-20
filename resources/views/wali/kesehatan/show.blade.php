@@ -20,12 +20,57 @@
         <div class="w-10 h-10 rounded-full {{ $kunjungan->perlu_rujuk ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600' }} flex items-center justify-center">
             <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
-        <div>
+        <div class="flex-1">
             <h4 class="font-bold {{ $kunjungan->perlu_rujuk ? 'text-red-700' : 'text-amber-700' }}">
                 {{ $kunjungan->perlu_rujuk ? 'Perlu Dirujuk ke Faskes' : 'Disarankan Dirawat di Rumah' }}
             </h4>
             @if($kunjungan->catatan_ortu)
                 <p class="text-sm text-gray-700 mt-1">{{ $kunjungan->catatan_ortu }}</p>
+            @endif
+
+            {{-- Status konfirmasi --}}
+            @if($kunjungan->wali_konfirmasi)
+                <div class="mt-3 flex items-center gap-2 text-sm font-semibold {{ $kunjungan->wali_konfirmasi === 'otw' ? 'text-amber-700' : 'text-green-700' }}">
+                    <i class="fa-solid {{ $kunjungan->wali_konfirmasi === 'otw' ? 'fa-car-side' : 'fa-circle-check' }}"></i>
+                    {{ $kunjungan->wali_konfirmasi === 'otw' ? 'Anda sudah konfirmasi: Sedang dalam perjalanan' : 'Anda sudah konfirmasi: Sudah ditangani' }}
+                    <span class="text-xs font-normal text-gray-500">({{ $kunjungan->wali_konfirmasi_at?->diffForHumans() }})</span>
+                </div>
+                @if($kunjungan->wali_konfirmasi_pesan)
+                    <p class="text-xs text-gray-500 mt-1 italic">"{{ $kunjungan->wali_konfirmasi_pesan }}"</p>
+                @endif
+            @else
+                {{-- Tombol konfirmasi --}}
+                <div class="mt-4 space-y-3" x-data="{ showForm: false }">
+                    <div class="flex gap-2">
+                        <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="flex-1">
+                            @csrf
+                            <input type="hidden" name="status" value="otw">
+                            <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
+                            <button type="submit"
+                                    class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
+                            </button>
+                        </form>
+                        <button @click="showForm = !showForm"
+                                class="flex-1 py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Sudah Ditangani
+                        </button>
+                    </div>
+
+                    {{-- Form dengan pesan custom --}}
+                    <div x-show="showForm" x-transition class="mt-2">
+                        <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="space-y-2">
+                            @csrf
+                            <input type="hidden" name="status" value="selesai">
+                            <textarea name="pesan" rows="2" placeholder="Tambahkan pesan (opsional)..."
+                                      class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"></textarea>
+                            <button type="submit"
+                                    class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-colors">
+                                Kirim Konfirmasi
+                            </button>
+                        </form>
+                    </div>
+                </div>
             @endif
         </div>
     </div>

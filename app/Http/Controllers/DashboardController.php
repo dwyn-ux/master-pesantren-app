@@ -141,8 +141,12 @@ class DashboardController extends Controller
                 ->latest('tanggal')
                 ->take(3)
                 ->get(),
+            // Hanya tampilkan kunjungan yang butuh tindakan wali (rujuk/rawat ortu)
+            // DAN belum dikonfirmasi wali — supaya tidak muncul terus setiap buka dashboard
             'kesehatan' => \App\Models\KunjunganKlinik::where('patient_type', \App\Models\Santri::class)
                 ->whereIn('patient_id', $santriIds)
+                ->where(fn($q) => $q->where('perlu_rujuk', true)->orWhere('perlu_dirawat_ortu', true))
+                ->whereNull('wali_konfirmasi')
                 ->latest('tanggal_kunjungan')
                 ->take(3)
                 ->get(),

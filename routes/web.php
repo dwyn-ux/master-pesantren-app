@@ -583,6 +583,7 @@ Route::middleware(["auth", "must.change.pw", "role:wali"])
         Route::middleware("feature:klinik")->group(function () {
             Route::get("/kesehatan", [\App\Http\Controllers\Wali\KesehatanController::class, "index"])->name("kesehatan.index");
             Route::get("/kesehatan/{kunjungan}", [\App\Http\Controllers\Wali\KesehatanController::class, "show"])->name("kesehatan.show");
+            Route::post("/kesehatan/{kunjungan}/konfirmasi", [\App\Http\Controllers\Wali\KesehatanController::class, "konfirmasi"])->name("kesehatan.konfirmasi");
         });
 
         // Tagihan
