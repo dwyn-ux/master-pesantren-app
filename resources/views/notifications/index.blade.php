@@ -14,28 +14,25 @@
 
     <div class="divide-y divide-gray-100">
         @forelse($notifications as $n)
+            @php
+                $iconMap = [
+                    'kesehatan'        => ['bg' => 'bg-red-100 text-red-600',     'icon' => 'fa-heart-pulse'],
+                    'weekly_report'    => ['bg' => 'bg-teal-100 text-teal-600',   'icon' => 'fa-chart-line'],
+                    'monthly_report'   => ['bg' => 'bg-indigo-100 text-indigo-600','icon' => 'fa-calendar-days'],
+                    'voice_note_ustadz'=> ['bg' => 'bg-emerald-100 text-emerald-600','icon' => 'fa-microphone'],
+                    'voice_note_wali'  => ['bg' => 'bg-purple-100 text-purple-600','icon' => 'fa-microphone-lines'],
+                    'tagihan_baru'     => ['bg' => 'bg-amber-100 text-amber-600', 'icon' => 'fa-file-invoice-dollar'],
+                    'quran_reminder'   => ['bg' => 'bg-green-100 text-green-600', 'icon' => 'fa-book-quran'],
+                    'finance_reminder' => ['bg' => 'bg-orange-100 text-orange-600','icon' => 'fa-triangle-exclamation'],
+                    'finance_approval' => ['bg' => 'bg-orange-100 text-orange-600','icon' => 'fa-triangle-exclamation'],
+                    'budget_alert'     => ['bg' => 'bg-orange-100 text-orange-600','icon' => 'fa-triangle-exclamation'],
+                ];
+                $style = $iconMap[$n->type] ?? ['bg' => 'bg-gray-100 text-gray-500', 'icon' => 'fa-bell'];
+            @endphp
             <a href="{{ $n->action_url ?? route('notifications.read', $n) }}"
                class="flex items-start gap-3 px-5 py-4 hover:bg-gray-50/60 transition {{ $n->read_at ? '' : 'bg-indigo-50/30' }}">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg
-                    {{ $n->type === 'kesehatan' ? 'bg-red-100 text-red-600'
-                       : ($n->type === 'weekly_report' ? 'bg-teal-100 text-teal-600'
-                       : ($n->type === 'monthly_report' ? 'bg-indigo-100 text-indigo-600'
-                       : ($n->type === 'voice_note_ustadz' ? 'bg-emerald-100 text-emerald-600'
-                       : ($n->type === 'voice_note_wali' ? 'bg-purple-100 text-purple-600'
-                       : ($n->type === 'tagihan_baru' ? 'bg-amber-100 text-amber-600'
-                       : ($n->type === 'quran_reminder' ? 'bg-green-100 text-green-600'
-                       : ($n->type === 'finance_reminder' || $n->type === 'finance_approval' || $n->type === 'budget_alert' ? 'bg-orange-100 text-orange-600'
-                       : 'bg-gray-100 text-gray-500')))))))) }}">
-                    <i class="fa-solid
-                        {{ $n->type === 'kesehatan' ? 'fa-heart-pulse'
-                           : ($n->type === 'weekly_report' ? 'fa-chart-line'
-                           : ($n->type === 'monthly_report' ? 'fa-calendar-days'
-                           : ($n->type === 'voice_note_ustadz' ? 'fa-microphone'
-                           : ($n->type === 'voice_note_wali' ? 'fa-microphone-lines'
-                           : ($n->type === 'tagihan_baru' ? 'fa-file-invoice-dollar'
-                           : ($n->type === 'quran_reminder' ? 'fa-book-quran'
-                           : ($n->type === 'finance_reminder' || $n->type === 'finance_approval' || $n->type === 'budget_alert' ? 'fa-triangle-exclamation'
-                           : 'fa-bell'))))))))  }}"></i>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg {{ $style['bg'] }}">
+                    <i class="fa-solid {{ $style['icon'] }}"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between">
