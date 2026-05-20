@@ -76,19 +76,20 @@ class ImportController extends Controller
         $failed  = 0;
         $errors  = [];
 
-        DB::transaction(function () use ($dataRows, $header, $request, &$success, &$failed, &$errors) {
-            foreach ($dataRows as $index => $row) {
-                $rowArr = $row->toArray();
+        // Proses tiap baris dalam transaksi TERPISAH supaya satu baris gagal
+        // tidak membatalkan baris lainnya (fix: transaction abort cascade)
+        foreach ($dataRows as $index => $row) {
+            $rowArr = $row->toArray();
 
-                // Sesuaikan jumlah kolom dengan header
-                $rowArr = array_slice($rowArr, 0, count($header));
-                while (count($rowArr) < count($header)) {
-                    $rowArr[] = null;
-                }
+            $rowArr = array_slice($rowArr, 0, count($header));
+            while (count($rowArr) < count($header)) {
+                $rowArr[] = null;
+            }
 
-                $data = array_combine($header, $rowArr);
+            $data = array_combine($header, $rowArr);
 
-                try {
+            try {
+                DB::transaction(function () use ($data, $request, &$success, &$failed, &$errors, $index) {
                     if ($request->tipe === 'wali') {
                         $result = $this->importWaliRow($data);
                     } else {
@@ -101,12 +102,12 @@ class ImportController extends Controller
                         $failed++;
                         $errors[] = "Baris " . ($index + 2) . ": Data tidak lengkap atau tidak valid.";
                     }
-                } catch (\Exception $e) {
-                    $failed++;
-                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
-                }
+                });
+            } catch (\Exception $e) {
+                $failed++;
+                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
             }
-        });
+        }
 
         ImportLog::create([
             'admin_id'    => auth()->id(),
@@ -147,44 +148,47 @@ class ImportController extends Controller
 
     private function importWaliRow(array $data): bool
     {
-        // Normalisasi key untuk toleran terhadap variasi spasi/huruf kapital
-        $nama    = $data['nama_orang_tua'] ?? $data['nama'] ?? null;
-        $noHp    = $data['no_hp'] ?? $data['no._hp'] ?? $data['nohp'] ?? null;
-        $nis     = $data['nis'] ?? null;
-        $namaSantri = $data['nama_santri'] ?? null;
-        $hubungan   = $data['hubungan'] ?? 'wali';
+        $nama       = trim($data['nama_orang_tua'] ?? $data['nama'] ?? '');
+        $noHp       = trim($data['no_hp'] ?? $data['no._hp'] ?? $data['nohp'] ?? '');
+        $nis        = trim((string) ($data['nis'] ?? ''));
+        $namaSantri = trim($data['nama_santri'] ?? '');
+        // Normalisasi hubungan: lowercase, trim, fallback ke 'wali'
+        $hubunganRaw = strtolower(trim($data['hubungan'] ?? 'wali'));
+        $hubungan    = in_array($hubunganRaw, ['ayah', 'ibu', 'wali']) ? $hubunganRaw : 'wali';
 
         if (empty($nama) || empty($noHp) || empty($nis)) {
             return false;
         }
 
-        $santri = Santri::firstOrCreate(
-            ['nis' => $nis],
-            [
-                'nama'     => $namaSantri ?? 'Santri',
-                'is_aktif' => true,
-            ]
-        );
-
-        $namaDepan = strtolower(preg_replace('/[^a-zA-Z]/', '', explode(' ', $nama)[0] ?? 'wali'));
-        $username  = $namaDepan . '_' . $santri->nis;
-
-        // Pastikan username unik
-        $suffix = '';
-        $attempt = 0;
-        while (User::where('username', $username . $suffix)->exists()) {
-            $attempt++;
-            $suffix = '_' . $attempt;
+        // Cari santri berdasarkan NIS
+        $santri = Santri::where('nis', $nis)->first();
+        if (!$santri) {
+            return false; // Santri tidak ditemukan, skip
         }
-        $username .= $suffix;
 
-        $password = Str::random(8);
+        // Cek apakah wali dengan nama yang sama sudah terhubung ke santri ini
+        $sudahAda = Wali::where('nama', $nama)
+            ->whereHas('santri', fn($q) => $q->where('santri_id', $santri->id))
+            ->exists();
+
+        if ($sudahAda) {
+            return true; // Skip duplikat, anggap sukses
+        }
+
+        // Cek apakah user dengan username NIS sudah ada (wali lain pakai NIS yang sama)
+        $username = $nis;
+        $suffix   = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $nis . '_' . $suffix++;
+        }
+
+        $password = $nis; // password default = NIS santri
         $user = User::create([
-            'name'          => $nama,
-            'username'      => $username,
-            'password'      => Hash::make($password),
-            'must_change_pw'=> true,
-            'is_active'     => true,
+            'name'           => $nama,
+            'username'       => $username,
+            'password'       => Hash::make($password),
+            'must_change_pw' => true,
+            'is_active'      => true,
         ]);
         $user->assignRole('wali');
 
