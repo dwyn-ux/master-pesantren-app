@@ -40,36 +40,16 @@
                 @endif
             @else
                 {{-- Tombol konfirmasi --}}
-                <div class="mt-4 space-y-3" x-data="{ showForm: false }">
-                    <div class="flex gap-2">
-                        <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="flex-1">
-                            @csrf
-                            <input type="hidden" name="status" value="otw">
-                            <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
-                            <button type="submit"
-                                    class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
-                            </button>
-                        </form>
-                        <button @click="showForm = !showForm"
-                                class="flex-1 py-2.5 px-4 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-check"></i> Sudah Ditangani
+                <div class="mt-4">
+                    <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}">
+                        @csrf
+                        <input type="hidden" name="status" value="otw">
+                        <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
+                        <button type="submit"
+                                class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
                         </button>
-                    </div>
-
-                    {{-- Form dengan pesan custom --}}
-                    <div x-show="showForm" x-transition class="mt-2">
-                        <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kunjungan) }}" class="space-y-2">
-                            @csrf
-                            <input type="hidden" name="status" value="selesai">
-                            <textarea name="pesan" rows="2" placeholder="Tambahkan pesan (opsional)..."
-                                      class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"></textarea>
-                            <button type="submit"
-                                    class="w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-bold transition-colors">
-                                Kirim Konfirmasi
-                            </button>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             @endif
         </div>

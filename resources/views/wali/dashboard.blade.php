@@ -284,23 +284,14 @@
                         <p class="text-xs text-red-600 mb-3"><strong>Pesan ustadz:</strong> {{ $kes->catatan_ortu }}</p>
                         @endif
                         {{-- Tombol konfirmasi langsung dari popup --}}
-                        <div class="flex gap-2 mt-2" x-data="{ loading: false, done: false }">
-                            <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kes) }}"
-                                  @submit.prevent="loading = true; $el.submit()" class="flex-1">
+                        <div class="mt-2">
+                            <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kes) }}">
                                 @csrf
                                 <input type="hidden" name="status" value="otw">
                                 <input type="hidden" name="pesan" value="Siap ustadz, saya sedang dalam perjalanan.">
-                                <button type="submit" :disabled="loading"
+                                <button type="submit"
                                         class="w-full py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
                                     <i class="fa-solid fa-car-side"></i> Siap, Saya OTW
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('wali.kesehatan.konfirmasi', $kes) }}" class="flex-1">
-                                @csrf
-                                <input type="hidden" name="status" value="selesai">
-                                <button type="submit"
-                                        class="w-full py-2 px-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-check"></i> Sudah Ditangani
                                 </button>
                             </form>
                         </div>

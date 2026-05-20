@@ -50,7 +50,7 @@ class KesehatanController extends Controller
         if (!$wali->santri->contains('id', $kunjungan->patient_id)) abort(403);
 
         $request->validate([
-            'status'  => 'required|in:otw,selesai',
+            'status'  => 'required|in:otw',
             'pesan'   => 'nullable|string|max:300',
         ]);
 
@@ -83,7 +83,7 @@ class KesehatanController extends Controller
         }
 
         // Kirim notif ke semua admin juga
-        User::role('admin')->each(function ($adminUser) use ($kunjungan, $santri, $wali, $labelStatus, $pesan) {
+        User::role('admin')->each(function ($adminUser) use ($kunjungan, $santri, $wali, $labelStatus, $pesan, $request) {
             $this->notifier->send(
                 user: $adminUser,
                 type: 'konfirmasi_kesehatan',
