@@ -23,7 +23,7 @@
                         <i class="fa-solid fa-search text-gray-400"></i>
                     </div>
                     <input type="text" x-model="searchQuery" @input.debounce.300ms="searchPatient()" 
-                           @focus="searchPatient(); showDropdown = true"
+                           @focus="onFocus()"
                            class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
                            placeholder="Ketik nama, NIS, NIK, atau kelas...">
                 </div>
@@ -208,17 +208,22 @@
             status: 'aktifitas_normal',
             
             async searchPatient() {
-                if (this.searchQuery.length < 1) {
-                    this.searchResults = [];
-                    return;
-                }
                 try {
-                    const res = await fetch(`/ustadz/klinik/api/search?q=${encodeURIComponent(this.searchQuery)}`);
+                    const q = this.searchQuery.trim();
+                    const res = await fetch(`/ustadz/klinik/api/search?q=${encodeURIComponent(q)}`);
                     this.searchResults = await res.json();
-                    this.showDropdown = true;
+                    this.showDropdown = this.searchResults.length > 0;
                 } catch (e) {
                     console.error(e);
                 }
+            },
+
+            async onFocus() {
+                // Saat input difokus, langsung tampilkan 20 santri pertama
+                if (this.searchResults.length === 0) {
+                    await this.searchPatient();
+                }
+                this.showDropdown = this.searchResults.length > 0;
             },
             
             async selectPatient(patient) {
