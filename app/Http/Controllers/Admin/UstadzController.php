@@ -129,8 +129,69 @@ class UstadzController extends Controller
 
     public function resetPassword(Ustadz $ustadz)
     {
-        $password = Str::random(8);
-        $ustadz->user->update(['password' => Hash::make($password), 'must_change_pw' => true]);
-        return back()->with('credential', "Password baru: <strong>{$password}</strong>");
+        // Reset ke username sebagai password default (mudah diingat, wajib ganti)
+        $defaultPassword = $ustadz->user->username;
+        $ustadz->user->update([
+            'password'       => Hash::make($defaultPassword),
+            'must_change_pw' => true,
+        ]);
+
+        \Storage::disk('local')->append('credentials-ustadz.txt',
+            "[reset] nama: {$ustadz->nama} | username: {$ustadz->user->username} | password baru: {$defaultPassword}\n"
+        );
+
+        return back()->with('credential', "Password <strong>{$ustadz->nama}</strong> direset ke: <strong>{$defaultPassword}</strong> (wajib ganti saat login)");
+    }
+
+    public function downloadCredential(Ustadz $ustadz)
+    {
+        $username     = $ustadz->user->username;
+        $noHp         = $ustadz->no_hp ?: '-';
+
+        $content  = "=== KREDENSIAL LOGIN USTADZ ===\n\n";
+        $content .= "Nama        : {$ustadz->nama}\n";
+        $content .= "No HP       : {$noHp}\n\n";
+        $content .= "Username    : {$username}\n";
+        $content .= "Password    : {$username}\n";
+        $content .= "             (password default = username, ubah setelah login pertama)\n\n";
+        $content .= "URL Login   : " . url('/login') . "\n\n";
+        $content .= "==============================\n";
+        $content .= "Dicetak pada: " . now()->format('d/m/Y H:i') . "\n";
+
+        $filename = 'kredensial-' . Str::slug($ustadz->nama) . '.txt';
+
+        return response($content, 200, [
+            'Content-Type'        => 'text/plain',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    public function downloadAllCredentials()
+    {
+        $semuaUstadz = Ustadz::with('user')
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->orderBy('nama')
+            ->get();
+
+        $content  = "=== DAFTAR KREDENSIAL LOGIN USTADZ ===\n";
+        $content .= "Dicetak pada : " . now()->format('d/m/Y H:i') . "\n";
+        $content .= "Total Ustadz : " . $semuaUstadz->count() . " akun\n";
+        $content .= "URL Login    : " . url('/login') . "\n";
+        $content .= str_repeat("=", 50) . "\n\n";
+
+        foreach ($semuaUstadz as $u) {
+            $noHp = $u->no_hp ?: '-';
+            $content .= "Nama       : {$u->nama}\n";
+            $content .= "No HP      : {$noHp}\n";
+            $content .= "Username   : {$u->user->username}\n";
+            $content .= "Password   : {$u->user->username}\n";
+            $content .= "           (password default = username)\n";
+            $content .= str_repeat("-", 40) . "\n";
+        }
+
+        return response($content, 200, [
+            'Content-Type'        => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="kredensial-semua-ustadz-' . now()->format('Ymd') . '.txt"',
+        ]);
     }
 }

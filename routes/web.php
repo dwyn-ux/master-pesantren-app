@@ -164,6 +164,14 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
             UstadzController::class,
             "resetPassword",
         ])->name("ustadz.reset-password");
+        Route::get("ustadz/{ustadz}/download-credential", [
+            UstadzController::class,
+            "downloadCredential",
+        ])->name("ustadz.download-credential");
+        Route::get("ustadz/download-all-credentials", [
+            UstadzController::class,
+            "downloadAllCredentials",
+        ])->name("ustadz.download-all-credentials");
 
         Route::resource("halaqah", HalaqahController::class)->except(["show"])->middleware("feature:halaqah");
         Route::resource("jenis-tagihan", JenisTagihanController::class)->except(

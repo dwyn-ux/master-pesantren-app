@@ -29,9 +29,15 @@
 <div class="glass-panel rounded-2xl shadow-sm mb-6 overflow-hidden">
     <div class="border-b border-gray-100 bg-white/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h6 class="text-lg font-bold text-gray-800">Daftar Ustadz</h6>
-        <a href="{{ route('admin.ustadz.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tambah Ustadz
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.ustadz.download-all-credentials') }}"
+               class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-file-arrow-down"></i> Download Semua Kredensial
+            </a>
+            <a href="{{ route('admin.ustadz.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Tambah Ustadz
+            </a>
+        </div>
     </div>
 
     <div class="p-6 border-b border-gray-100">
@@ -81,12 +87,15 @@
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
                             @if($u->user->is_active)
-                                <a href="{{ route('admin.ustadz.edit', $u) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                                <a href="{{ route('admin.ustadz.edit', $u) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors" title="Edit">
                                     <i class="fa-solid fa-pen-to-square text-sm"></i>
                                 </a>
-                                <form method="POST" action="{{ route('admin.ustadz.reset-password', $u) }}" class="inline-block" onsubmit="return confirm('Reset password untuk {{ $u->nama }}?')">
+                                <a href="{{ route('admin.ustadz.download-credential', $u) }}" class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 flex items-center justify-center transition-colors" title="Download Username & Password">
+                                    <i class="fa-solid fa-download text-sm"></i>
+                                </a>
+                                <form method="POST" action="{{ route('admin.ustadz.reset-password', $u) }}" class="inline-block" onsubmit="return confirm('Reset password {{ $u->nama }} ke default (username-nya)?')">
                                     @csrf
-                                    <button type="submit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-colors" title="Reset password">
+                                    <button type="submit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-colors" title="Reset password ke default">
                                         <i class="fa-solid fa-key text-sm"></i>
                                     </button>
                                 </form>
