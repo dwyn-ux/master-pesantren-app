@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Security headers untuk semua response web
+        $middleware->web(append: [
+            \App\Http\Middleware\SecurityHeaders::class,
+        ]);
+
         $middleware->alias([
             "role" => \Spatie\Permission\Middleware\RoleMiddleware::class,
             "permission" =>
