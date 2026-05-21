@@ -44,14 +44,31 @@
         @csrf
         <input type="hidden" name="jumlah_halaman" :value="jumlahHalaman">
 
-        <div>
+        <div x-data="santriPickerU()" class="relative">
             <label class="block text-sm font-bold text-gray-700 mb-1.5">Santri <span class="text-red-500">*</span></label>
-            <select name="santri_id" x-model="santriId" @change="loadLastPosition" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none shadow-sm focus:border-indigo-500" required>
-                <option value="">-- Pilih Santri --</option>
-                @foreach($santriList as $s)
-                    <option value="{{ $s->id }}">{{ $s->nama }} ({{ $s->nis }})</option>
-                @endforeach
-            </select>
+            <input type="hidden" name="santri_id" :value="santriId" required>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+                </div>
+                <input type="text" x-model="query" @input="filter()" @focus="open = true; filter()" @click.away="open = false"
+                       :placeholder="selected ? selected : 'Ketik nama atau NIS santri...'"
+                       :class="selected ? 'text-gray-800 font-semibold' : 'text-gray-500'"
+                       class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none shadow-sm focus:border-indigo-500 transition-all">
+                <button x-show="selected" @click="reset()" type="button"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div x-show="open && results.length > 0" @click.away="open = false"
+                 class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-56 overflow-y-auto">
+                <template x-for="s in results" :key="s.id">
+                    <div @click="pick(s)" class="px-4 py-2.5 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 flex justify-between items-center">
+                        <span class="font-semibold text-gray-800 text-sm" x-text="s.nama"></span>
+                        <span class="text-xs text-gray-400 font-mono" x-text="s.nis"></span>
+                    </div>
+                </template>
+            </div>
         </div>
 
         <div x-show="lastInfo" x-transition class="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 flex items-start gap-3 text-sm">
@@ -240,6 +257,11 @@ function setoranUmumForm() {
             this.awalFiltered = all; this.akhirFiltered = all;
             this.$watch('surahAwal',  v=>{ const s=SURAH_DATA[v]; this.awalSearch=s?s.id+'. '+s.nama_latin:''; });
             this.$watch('surahAkhir', v=>{ const s=SURAH_DATA[v]; this.akhirSearch=s?s.id+'. '+s.nama_latin:''; });
+            // Tangkap event dari santriPickerU
+            this.$el.addEventListener('santri-picked-u', e => {
+                this.santriId = e.detail.id;
+                this.loadLastPosition();
+            });
         },
         buildAyatAwal(id) { const s=SURAH_DATA[id]; this.maxAyatAwal=s?s.jumlah_ayat:0; },
         buildAyatAkhir(id) { const s=SURAH_DATA[id]; this.maxAyatAkhir=s?s.jumlah_ayat:0; },
@@ -264,6 +286,31 @@ function setoranUmumForm() {
                     this.lastInfo=`${data.last_info} (${data.last_tanggal})`; this.hitungHalaman();
                 } else { this.lastInfo=''; }
             } catch(e) { console.error(e); }
+        }
+    }
+}
+
+// Santri searchable picker untuk setoran umum
+function santriPickerU() {
+    const ALL = @json($santriList->map(fn($s) => ['id' => $s->id, 'nama' => $s->nama, 'nis' => $s->nis]));
+    return {
+        query: '', open: false, results: ALL, santriId: '', selected: '',
+        filter() {
+            const q = this.query.toLowerCase().trim();
+            this.results = q
+                ? ALL.filter(s => s.nama.toLowerCase().includes(q) || s.nis.toLowerCase().includes(q))
+                : ALL;
+            this.open = true;
+        },
+        pick(s) {
+            this.santriId = s.id;
+            this.selected = s.nama + ' (' + s.nis + ')';
+            this.query    = '';
+            this.open     = false;
+            this.$dispatch('santri-picked-u', { id: s.id });
+        },
+        reset() {
+            this.santriId = ''; this.selected = ''; this.query = ''; this.results = ALL;
         }
     }
 }
