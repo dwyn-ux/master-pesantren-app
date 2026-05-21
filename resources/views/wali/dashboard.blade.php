@@ -183,12 +183,11 @@
 {{-- Modals Push ditaruh di luar @section content --}}
 @push('modals')
 @if($rekap['tagihan']->isNotEmpty() || $rekap['tahfidz']->isNotEmpty() || $rekap['kesehatan']->isNotEmpty())
-<div x-data="{ showRekap: true }" 
+<div x-data="rekapModal()" 
      x-show="showRekap" 
      class="fixed inset-0 flex items-center justify-center p-4" 
      style="display: none; z-index: 999999;"
-     x-init="document.body.classList.add('overflow-hidden')"
-     @show-rekap.window="showRekap = true; document.body.classList.add('overflow-hidden')"
+     x-init="init()"
      x-effect="if(!showRekap) document.body.classList.remove('overflow-hidden')">
     {{-- Overlay Backdrop --}}
     <div x-show="showRekap" 
@@ -212,7 +211,7 @@
                 <h3 class="text-xl font-bold text-gray-900">Ringkasan Informasi Santri</h3>
                 <p class="text-gray-500 text-sm">Update terbaru untuk Ananda</p>
             </div>
-            <button @click="showRekap = false" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
+            <button @click="close()" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>
@@ -313,7 +312,7 @@
 
         {{-- Footer --}}
         <div class="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
-            <button @click="showRekap = false" class="flex-1 py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-200">
+            <button @click="close()" class="flex-1 py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-200">
                 Paham, Terima Kasih
             </button>
         </div>
@@ -324,11 +323,30 @@
 
 @push('scripts')
 <script>
+    // Popup rekap — hanya muncul sekali per sesi (bukan setiap buka dashboard)
+    function rekapModal() {
+        return {
+            showRekap: false,
+            init() {
+                // Key unik berdasarkan konten rekap supaya muncul lagi kalau ada data baru
+                const key = 'rekap_shown_{{ md5(json_encode([$rekap["tagihan"]->pluck("id"), $rekap["tahfidz"]->pluck("id"), $rekap["kesehatan"]->pluck("id")])) }}';
+                if (!sessionStorage.getItem(key)) {
+                    this.showRekap = true;
+                    document.body.classList.add('overflow-hidden');
+                    sessionStorage.setItem(key, '1');
+                }
+            },
+            close() {
+                this.showRekap = false;
+            }
+        }
+    }
+
     // Reload halaman jika ada pembayaran pending untuk update otomatis
     @if(Auth::user()->wali && \App\Models\Pembayaran::where('wali_id', Auth::user()->wali->id)->where('status', 'pending')->exists())
         setTimeout(function() {
             window.location.reload();
-        }, 15000); // 15 detik lebih cepat
+        }, 15000);
     @endif
 </script>
 @endpush

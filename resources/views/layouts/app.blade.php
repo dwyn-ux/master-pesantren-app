@@ -156,7 +156,6 @@
     {{-- Capacitor Push Notifications --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Kita coba deteksi objek Capacitor dengan timeout karena loadnya sering lambat
             setTimeout(function() {
                 const capacitor = window.Capacitor || (window.parent && window.parent.Capacitor);
                 
@@ -169,10 +168,9 @@
                         }
                     });
 
+                    // Simpan FCM token
                     PushNotifications.addListener('registration', (token) => {
                         console.log('FCM Token:', token.value);
-                        
-                        // Coba kirim ke route web biar pake session yang sama
                         fetch('{{ route("wali.update-fcm-token") }}', {
                             method: 'POST',
                             headers: {
@@ -183,15 +181,59 @@
                             body: JSON.stringify({ fcm_token: token.value })
                         })
                         .then(r => r.json())
-                        .then(data => {
-                            if(data.success) {
-                                console.log('Token Synced Successfully');
-                            }
-                        })
+                        .then(data => { if(data.success) console.log('Token Synced'); })
                         .catch(err => console.error('FCM Sync Error:', err));
                     });
+
+                    // Notifikasi diterima saat app foreground — putar suara
+                    PushNotifications.addListener('pushNotificationReceived', (notification) => {
+                        console.log('Push received (foreground):', notification);
+                        // Putar suara notifikasi
+                        try {
+                            const audio = new Audio('{{ asset("sounds/notification.wav") }}');
+                            audio.volume = 0.8;
+                            audio.play().catch(() => {});
+                        } catch(e) {}
+                    });
+
+                    // Notifikasi diklik — deep link ke halaman yang sesuai
+                    PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+                        console.log('Push action performed:', action);
+                        const data = action.notification.data || {};
+                        const baseUrl = '{{ url("/") }}';
+
+                        let targetUrl = null;
+
+                        // Tentukan URL tujuan berdasarkan tipe notifikasi
+                        if (data.action_url) {
+                            // Kalau server sudah set action_url, pakai itu
+                            targetUrl = data.action_url;
+                        } else if (data.type === 'voice_note_ustadz' || data.type === 'voice_note_wali') {
+                            targetUrl = data.voice_note_id
+                                ? baseUrl + '/wali/voice-note/' + data.voice_note_id
+                                : baseUrl + '/wali/voice-note';
+                        } else if (data.type === 'tagihan_baru') {
+                            targetUrl = baseUrl + '/wali/tagihan';
+                        } else if (data.type === 'kesehatan' || data.type === 'konfirmasi_kesehatan') {
+                            targetUrl = data.kunjungan_id
+                                ? baseUrl + '/wali/kesehatan/' + data.kunjungan_id
+                                : baseUrl + '/wali/kesehatan';
+                        } else if (data.type === 'quran_reminder') {
+                            targetUrl = baseUrl + '/quran';
+                        } else if (data.type === 'weekly_report' || data.type === 'monthly_report') {
+                            targetUrl = data.santri_id
+                                ? baseUrl + '/wali/laporan/' + data.santri_id
+                                : baseUrl + '/wali/dashboard';
+                        } else {
+                            targetUrl = baseUrl + '/notifications';
+                        }
+
+                        if (targetUrl && window.location.href !== targetUrl) {
+                            window.location.href = targetUrl;
+                        }
+                    });
                 }
-            }, 3000); // Tunggu 3 detik biar Capacitor Bridge siap
+            }, 3000);
         });
     </script>
     @stack('modals')

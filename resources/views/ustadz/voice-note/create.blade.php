@@ -28,14 +28,35 @@
       x-data="voiceRecorder()" @submit="prepareSubmit()">
     @csrf
 
-    <div>
+    <div x-data="santriPickerVN()" class="relative">
         <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Santri <span class="text-red-500">*</span></label>
-        <select name="santri_id" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none">
-            <option value="">— pilih santri —</option>
-            @foreach($santriList as $s)
-                <option value="{{ $s->id }}" @selected($santri && $santri->id === $s->id)>{{ $s->nama }} ({{ $s->nis }} · {{ $s->kelas }})</option>
-            @endforeach
-        </select>
+        <input type="hidden" name="santri_id" :value="santriId" required>
+        @if($santri)
+            {{-- Pre-fill kalau dari kunjungan klinik --}}
+            <script>document.addEventListener('alpine:init', () => { window._vnPreselect = {{ $santri->id }}; window._vnPreselectLabel = '{{ $santri->nama }} ({{ $santri->nis }})'; })</script>
+        @endif
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+            </div>
+            <input type="text" x-model="query" @input="filter()" @focus="open = true; filter()" @click.away="open = false"
+                   :placeholder="selected ? selected : 'Ketik nama, NIS, atau kelas...'"
+                   :class="selected ? 'text-gray-800 font-semibold' : 'text-gray-500'"
+                   class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none">
+            <button x-show="selected" @click="reset()" type="button"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+        <div x-show="open && results.length > 0" @click.away="open = false"
+             class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-xl border border-gray-100 max-h-56 overflow-y-auto">
+            <template x-for="s in results" :key="s.id">
+                <div @click="pick(s)" class="px-4 py-2.5 hover:bg-teal-50 cursor-pointer border-b border-gray-50 flex justify-between items-center">
+                    <span class="font-semibold text-gray-800 text-sm" x-text="s.nama"></span>
+                    <span class="text-xs text-gray-400" x-text="s.nis + (s.kelas ? ' · ' + s.kelas : '')"></span>
+                </div>
+            </template>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -154,6 +175,31 @@ function voiceRecorder() {
             const sec = (s % 60).toString().padStart(2, '0');
             return `${m}:${sec}`;
         }
+    }
+}
+
+// Santri searchable picker untuk voice note
+function santriPickerVN() {
+    const ALL = @json($santriList->map(fn($s) => ['id' => $s->id, 'nama' => $s->nama, 'nis' => $s->nis, 'kelas' => $s->kelas ?? '']));
+    const preId    = typeof window._vnPreselect !== 'undefined' ? window._vnPreselect : null;
+    const preLabel = typeof window._vnPreselectLabel !== 'undefined' ? window._vnPreselectLabel : '';
+    return {
+        query: '', open: false, results: ALL,
+        santriId: preId || '',
+        selected: preLabel || '',
+        filter() {
+            const q = this.query.toLowerCase().trim();
+            this.results = q
+                ? ALL.filter(s => s.nama.toLowerCase().includes(q) || s.nis.toLowerCase().includes(q) || (s.kelas||'').toLowerCase().includes(q))
+                : ALL;
+            this.open = true;
+        },
+        pick(s) {
+            this.santriId = s.id;
+            this.selected = s.nama + ' (' + s.nis + ')';
+            this.query = ''; this.open = false;
+        },
+        reset() { this.santriId = ''; this.selected = ''; this.query = ''; this.results = ALL; }
     }
 }
 </script>
