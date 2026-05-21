@@ -3,7 +3,13 @@
 @section('page-title', 'Perizinan Santri')
 
 @section('sidebar')
-    @include('partials.sidebar-admin')
+    @if(auth()->user()->hasRole('admin'))
+        @include('partials.sidebar-admin')
+    @elseif(auth()->user()->hasRole('kesantrian'))
+        @include('partials.sidebar-kesantrian')
+    @else
+        @include('partials.sidebar-ustadz')
+    @endif
 @endsection
 
 @section('content')
