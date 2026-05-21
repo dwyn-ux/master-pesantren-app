@@ -1,0 +1,16 @@
+{
+  "name": "pesantren-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright test suite for Ash-Shiddiq Pesantren App",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:security": "playwright test security",
+    "test:auth": "playwright test auth",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

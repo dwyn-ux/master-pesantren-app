@@ -51,6 +51,7 @@ class SecurityHeaders
         // Hapus header yang bocorkan info server
         $response->headers->remove('X-Powered-By');
         $response->headers->remove('Server');
+        $response->headers->set('X-Powered-By', ''); // override kalau web server set duluan
 
         return $response;
     }
