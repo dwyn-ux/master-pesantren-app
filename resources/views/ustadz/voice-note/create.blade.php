@@ -180,7 +180,7 @@ function voiceRecorder() {
 
 // Santri searchable picker untuk voice note
 function santriPickerVN() {
-    const ALL = @json($santriList->map(fn($s) => ['id' => $s->id, 'nama' => $s->nama, 'nis' => $s->nis, 'kelas' => $s->kelas ?? '']));
+    const ALL = {!! json_encode($santriList->map(fn($s) => ['id' => $s->id, 'nama' => $s->nama, 'nis' => $s->nis, 'kelas' => $s->kelas ?? ''])) !!};
     const preId    = typeof window._vnPreselect !== 'undefined' ? window._vnPreselect : null;
     const preLabel = typeof window._vnPreselectLabel !== 'undefined' ? window._vnPreselectLabel : '';
     return {
