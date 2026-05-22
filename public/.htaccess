@@ -23,3 +23,23 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ── Security Headers ─────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    # Hapus header yang bocorkan info server
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+    Header unset Server
+
+    # Tambah security headers (backup dari middleware Laravel)
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Blokir akses ke file sensitif
+<FilesMatch "(\.env|\.git|composer\.(json|lock)|package\.json|artisan)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

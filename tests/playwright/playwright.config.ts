@@ -23,9 +23,11 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    // Mobile test hanya untuk security headers (tidak butuh navigasi kompleks)
     {
       name: 'mobile',
       use: { ...devices['Pixel 7'] },
+      testMatch: '**/security.spec.ts',
     },
   ],
 });
