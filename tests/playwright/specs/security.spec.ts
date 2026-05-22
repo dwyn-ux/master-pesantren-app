@@ -130,7 +130,9 @@ test.describe('Access Control', () => {
   });
 
   test('SQL injection di login tidak berhasil', async ({ page }) => {
-    test.slow(); // naikkan timeout 3x
+    test.slow();
+    // Tunggu sebentar supaya rate limit dari test sebelumnya sudah reset
+    await page.waitForTimeout(5000);
     await page.goto('/login', { timeout: 30000 });
     await page.fill('input[name="username"]', "admin' OR '1'='1' --");
     await page.fill('input[name="password"]', "' OR '1'='1");
