@@ -76,3 +76,25 @@
         <span class="font-medium text-sm">Ganti Password</span>
     </a>
 </div>
+
+@featureany('quran','prayer')
+<div class="px-4 py-2 mt-2 mb-6">
+    <p class="text-xs font-bold text-indigo-200/70 uppercase tracking-wider mb-2">Spiritual</p>
+    @feature('quran')
+    <a href="{{ route('quran.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('quran*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-book-open-reader w-5 text-center"></i>
+        <span class="font-medium text-sm">Al-Quran</span>
+    </a>
+    @endfeature
+    @feature('prayer')
+    <a href="{{ route('prayer.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('prayer.index') || request()->routeIs('prayer.calendar') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-clock w-5 text-center"></i>
+        <span class="font-medium text-sm">Jadwal Sholat</span>
+    </a>
+    <a href="{{ route('prayer.qibla') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('prayer.qibla') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+        <i class="fa-solid fa-compass w-5 text-center"></i>
+        <span class="font-medium text-sm">Arah Kiblat</span>
+    </a>
+    @endfeature
+</div>
+@endfeatureany
