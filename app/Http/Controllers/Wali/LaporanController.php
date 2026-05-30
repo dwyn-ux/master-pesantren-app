@@ -33,7 +33,7 @@ class LaporanController extends Controller
 
         $setoran = $santri->setoran()
             ->whereBetween('tanggal', [$dari->toDateString(), $sampai->toDateString()])
-            ->with('penerima')
+            ->with(['penerima', 'surahAwal', 'surahAkhir'])
             ->latest('tanggal')
             ->get();
 

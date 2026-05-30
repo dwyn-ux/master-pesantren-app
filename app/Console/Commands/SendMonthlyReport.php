@@ -48,12 +48,19 @@ class SendMonthlyReport extends Command
             $report = $reports->generateMonthlyReport($santri, $month, $year);
 
             $title = "Laporan Bulanan {$report['periode']['bulan']}: {$santri->nama}";
+
+            $posisi = $report['tahfidz']['posisi_terakhir'] ?? null;
+            $posisiStr = $posisi
+                ? "Posisi: {$posisi['surah']} ayat {$posisi['ayat']}"
+                : '';
+
             $body = sprintf(
-                "Saldo: Rp %s | Hafalan bulan ini: %s hal (total %s juz %s hal) | Top-up: Rp %s | Belanja: Rp %s",
-                number_format($report['saldo']),
+                "Hafalan: %s hal (%s juz %s hal) | %sSaldo: Rp %s | Top-up: Rp %s | Belanja: Rp %s",
                 $report['tahfidz']['halaman_baru'],
                 $report['tahfidz']['juz'],
                 $report['tahfidz']['sisa_halaman'],
+                $posisiStr ? "{$posisiStr} | " : '',
+                number_format($report['saldo']),
                 number_format($report['topup']),
                 number_format($report['belanja']),
             );

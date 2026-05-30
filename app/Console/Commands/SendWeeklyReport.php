@@ -49,13 +49,20 @@ class SendWeeklyReport extends Command
             $report = $reports->generateWeeklyReport($santri);
 
             $title = "Laporan Mingguan: {$santri->nama}";
+
+            $posisi = $report['tahfidz']['posisi_terakhir'];
+            $posisiStr = $posisi
+                ? "Posisi: {$posisi['surah']} ayat {$posisi['ayat']}"
+                : '';
+
             $body = sprintf(
-                "Saldo: Rp %s | Hafalan: %s hal baru (total %s juz %s hal) | Belanja: Rp %s",
-                number_format($report['saldo']),
+                "Hafalan: %s hal baru (%s juz %s hal) | Saldo: Rp %s | Belanja: Rp %s%s",
                 $report['tahfidz']['halaman_baru'],
                 $report['tahfidz']['juz'],
                 $report['tahfidz']['sisa_halaman'],
+                number_format($report['saldo']),
                 number_format($report['belanja']),
+                $posisiStr ? " | {$posisiStr}" : '',
             );
 
             foreach ($santri->wali as $wali) {

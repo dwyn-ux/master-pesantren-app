@@ -52,6 +52,13 @@ class AuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+
+        // Hapus FCM token saat logout supaya notifikasi tidak dikirim ke device ini lagi
+        if ($user && $user->fcm_token) {
+            $user->update(['fcm_token' => null]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
