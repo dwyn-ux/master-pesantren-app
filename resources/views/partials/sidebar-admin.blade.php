@@ -1,3 +1,13 @@
+@role('superadmin')
+<div class="px-4 py-2 mt-4">
+    <p class="text-xs font-bold text-indigo-200/70 uppercase tracking-wider mb-2">Akses Superuser</p>
+    <a href="{{ route('superadmin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-indigo-100 hover:bg-white/10">
+        <i class="fa-solid fa-shield-halved w-5 text-center"></i>
+        <span class="font-medium text-sm">Dashboard Superadmin</span>
+    </a>
+</div>
+@endrole
+
 <div class="px-4 py-2 mt-4">
     <p class="text-xs font-bold text-indigo-200/70 uppercase tracking-wider mb-2">Master Data</p>
     <a href="{{ route('admin.santri.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('admin.santri*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
