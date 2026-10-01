@@ -1,3 +1,17 @@
+# Master Pesantren App
+
+Aplikasi manajemen pesantren berbasis Laravel.
+
+## Deploy
+
+- VPS production: lihat [DEPLOY.md](DEPLOY.md).
+- Shared hosting DomaiNesia: lihat [DEPLOY-DOMAINESIA.md](DEPLOY-DOMAINESIA.md).
+- Template environment DomaiNesia: salin `.env.domainesia.example` menjadi `.env` di hosting, lalu isi kredensial production.
+
+> Migrasi dari VPS ke shared hosting harus mempertahankan `APP_KEY` lama, database production, dan folder `storage/app/public`.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

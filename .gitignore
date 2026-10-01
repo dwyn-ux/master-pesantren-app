@@ -28,6 +28,7 @@ thumbs.db*.log
 /public/build
 /public/hot
 /public/storage
+/deploy/domainesia/*.zip
 /storage/*.key
 /storage/pail
 /vendor
