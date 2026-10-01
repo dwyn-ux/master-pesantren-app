@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class StaffPasswordController extends Controller
@@ -47,7 +48,7 @@ class StaffPasswordController extends Controller
         }
 
         $request->validate([
-            'password' => ['required', 'string', 'confirmed', Password::min(6)],
+            'password' => ['required', 'string', 'confirmed', Password::min(8)],
         ]);
 
         $user->update([
@@ -60,8 +61,7 @@ class StaffPasswordController extends Controller
 
     public function resetToDefault(User $user)
     {
-        // Reset ke password default: username + "@1234"
-        $defaultPassword = $user->username . '@1234';
+        $defaultPassword = Str::random(16);
 
         $user->update([
             'password'       => Hash::make($defaultPassword),

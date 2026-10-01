@@ -193,6 +193,8 @@ storage/app/private/credentials-outlet.txt
 
 Setelah login pertama, langsung ganti semua password default.
 
+Sebelum dibuka ke user, jalankan checklist keamanan di `SECURITY-DOMAINESIA.md`.
+
 ## 6. Copy Storage Upload
 
 Wajib copy folder ini dari VPS lama:

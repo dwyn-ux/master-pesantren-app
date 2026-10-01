@@ -44,11 +44,20 @@ class RfidController extends Controller
 
     public function apiSync(Request $request): JsonResponse
     {
+        if ($response = $this->authorizeHardwareRequest($request)) {
+            return $response;
+        }
+
         $request->validate([
             'rfid_uid' => 'required|string',
             'action'   => 'required|in:register,scan',
             'nis'      => 'required_if:action,register|string',
+            'timestamp'=> 'required|integer',
         ]);
+
+        if (abs(now()->timestamp - (int) $request->timestamp) > 300) {
+            return response()->json(['success' => false, 'message' => 'Request timestamp expired'], 401);
+        }
 
         if ($request->action === 'register') {
             $santri = Santri::where('nis', $request->nis)->first();
@@ -77,5 +86,22 @@ class RfidController extends Controller
     {
         $santri->update(['rfid_uid' => null]);
         return back()->with('success', "RFID berhasil dihapus.");
+    }
+
+    private function authorizeHardwareRequest(Request $request): ?JsonResponse
+    {
+        $configuredToken = config('services.hardware.token');
+
+        if (! filled($configuredToken)) {
+            return response()->json(['success' => false, 'message' => 'Hardware API disabled'], 403);
+        }
+
+        $providedToken = $request->bearerToken() ?: $request->header('X-Hardware-Token');
+
+        if (! is_string($providedToken) || ! hash_equals($configuredToken, $providedToken)) {
+            return response()->json(['success' => false, 'message' => 'Invalid hardware token'], 401);
+        }
+
+        return null;
     }
 }

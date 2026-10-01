@@ -56,7 +56,7 @@ class WaliController extends Controller
         }
 
         DB::transaction(function () use ($request) {
-            // Gunakan NIS anak pertama sebagai username & password default
+            // Gunakan NIS anak pertama sebagai username, password dibuat acak.
             $santriPertama = Santri::find($request->santri_ids[0]);
             $nisAnak       = $santriPertama?->nis ?? Str::random(8);
 
@@ -66,7 +66,7 @@ class WaliController extends Controller
             while (User::where('username', $username)->exists()) {
                 $username = $nisAnak . '_' . $suffix++;
             }
-            $password = $nisAnak; // password default = NIS anak pertama
+            $password = Str::random(16);
 
             $user = User::create([
                 'name'           => $request->nama,
@@ -174,17 +174,13 @@ class WaliController extends Controller
     public function downloadCredential(Wali $wali)
     {
         $username = $wali->user->username;
-        // Ambil NIS anak pertama sebagai password hint (password default = NIS anak pertama)
-        $santriPertama = $wali->santri->first();
-        $passwordHint  = $santriPertama?->nis ?? '(sudah diubah)';
-
         $content  = "=== KREDENSIAL LOGIN ORANG TUA / WALI ===\n\n";
         $content .= "Nama Wali   : {$wali->nama}\n";
         $content .= "No HP       : {$wali->no_hp}\n";
         $content .= "Santri      : " . $wali->santri->pluck('nama')->join(', ') . "\n\n";
         $content .= "Username    : {$username}\n";
-        $content .= "Password    : {$passwordHint}\n";
-        $content .= "             (password default = NIS anak, ubah setelah login pertama)\n\n";
+        $content .= "Password    : (gunakan password terakhir yang diberikan admin / lakukan reset jika lupa)\n";
+        $content .= "             (wajib diganti setelah login pertama)\n\n";
         $content .= "URL Login   : " . url('/login') . "\n\n";
         $content .= "===========================================\n";
         $content .= "Dicetak pada: " . now()->format('d/m/Y H:i') . "\n";
@@ -208,16 +204,14 @@ class WaliController extends Controller
         $content .= str_repeat("=", 60) . "\n\n";
 
         foreach ($semuaWali as $w) {
-            $santriPertama = $w->santri->first();
-            $passwordHint  = $santriPertama?->nis ?? '(sudah diubah)';
             $namaAnak      = $w->santri->pluck('nama')->join(', ') ?: '-';
 
             $content .= "Nama Wali  : {$w->nama}\n";
             $content .= "No HP      : {$w->no_hp}\n";
             $content .= "Santri     : {$namaAnak}\n";
             $content .= "Username   : {$w->user->username}\n";
-            $content .= "Password   : {$passwordHint}\n";
-            $content .= "           (password default = NIS anak, ubah setelah login pertama)\n";
+            $content .= "Password   : (reset dari halaman admin jika lupa)\n";
+            $content .= "           (password dibuat acak dan wajib diganti saat login pertama)\n";
             $content .= str_repeat("-", 50) . "\n";
         }
 
@@ -229,7 +223,7 @@ class WaliController extends Controller
 
     public function resetPassword(Wali $wali)
     {
-        $password = Str::random(8);
+        $password = Str::random(16);
         $wali->user->update([
             'password'       => Hash::make($password),
             'must_change_pw' => true,

@@ -6,13 +6,14 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SuperadminSeeder extends Seeder
 {
     public function run(): void
     {
         $username = 'superadmin';
-        $password = 'Super@1234'; // wajib diganti setelah login pertama
+        $password = Str::random(16);
 
         $user = User::firstOrCreate(
             ['username' => $username],

@@ -49,7 +49,7 @@ class UstadzController extends Controller
             while (User::where('username', $username)->exists()) {
                 $username = $base . $i++;
             }
-            $password = Str::random(8);
+            $password = Str::random(16);
 
             $user = User::create([
                 'name'           => $request->nama,
@@ -129,8 +129,7 @@ class UstadzController extends Controller
 
     public function resetPassword(Ustadz $ustadz)
     {
-        // Reset ke username sebagai password default (mudah diingat, wajib ganti)
-        $defaultPassword = $ustadz->user->username;
+        $defaultPassword = Str::random(16);
         $ustadz->user->update([
             'password'       => Hash::make($defaultPassword),
             'must_change_pw' => true,
@@ -152,8 +151,8 @@ class UstadzController extends Controller
         $content .= "Nama        : {$ustadz->nama}\n";
         $content .= "No HP       : {$noHp}\n\n";
         $content .= "Username    : {$username}\n";
-        $content .= "Password    : {$username}\n";
-        $content .= "             (password default = username, ubah setelah login pertama)\n\n";
+        $content .= "Password    : (gunakan password terakhir yang diberikan admin / lakukan reset jika lupa)\n";
+        $content .= "             (wajib diganti setelah login pertama)\n\n";
         $content .= "URL Login   : " . url('/login') . "\n\n";
         $content .= "==============================\n";
         $content .= "Dicetak pada: " . now()->format('d/m/Y H:i') . "\n";
@@ -184,8 +183,8 @@ class UstadzController extends Controller
             $content .= "Nama       : {$u->nama}\n";
             $content .= "No HP      : {$noHp}\n";
             $content .= "Username   : {$u->user->username}\n";
-            $content .= "Password   : {$u->user->username}\n";
-            $content .= "           (password default = username)\n";
+            $content .= "Password   : (reset dari halaman admin jika lupa)\n";
+            $content .= "           (password dibuat acak dan wajib diganti saat login pertama)\n";
             $content .= str_repeat("-", 40) . "\n";
         }
 

@@ -42,7 +42,7 @@ class RaportSettingController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'logo_file'   => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048',
+            'logo_file'   => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'remove_logo' => 'nullable|boolean',
         ]);
 

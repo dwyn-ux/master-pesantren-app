@@ -271,7 +271,7 @@ class PembayaranController extends Controller
                 CURLOPT_HTTPHEADER => ['Authorization: ' . $authHeader, 'Accept: application/json'],
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 30,
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
             ]);
             $response = curl_exec($ch);
             $error = curl_error($ch);
@@ -304,19 +304,31 @@ class PembayaranController extends Controller
         $rawBody = $request->getContent();
         $signature = $request->header("X-Callback-Signature");
 
-        if ($this->tripayPrivateKey && $signature) {
-            $expectedSignature = hash_hmac(
-                "sha256",
-                $rawBody,
-                $this->tripayPrivateKey,
+        if (! filled($this->tripayPrivateKey)) {
+            return response()->json(
+                ["success" => false, "message" => "Tripay callback secret is not configured"],
+                503,
             );
+        }
 
-            if (!hash_equals($expectedSignature, $signature)) {
-                return response()->json(
-                    ["success" => false, "message" => "Invalid signature"],
-                    403,
-                );
-            }
+        if (! is_string($signature) || $signature === '') {
+            return response()->json(
+                ["success" => false, "message" => "Missing signature"],
+                403,
+            );
+        }
+
+        $expectedSignature = hash_hmac(
+            "sha256",
+            $rawBody,
+            $this->tripayPrivateKey,
+        );
+
+        if (!hash_equals($expectedSignature, $signature)) {
+            return response()->json(
+                ["success" => false, "message" => "Invalid signature"],
+                403,
+            );
         }
 
         $reference =
@@ -500,11 +512,17 @@ class PembayaranController extends Controller
         $setting = \App\Models\PaymentSetting::where('active_gateway', 'midtrans')->first()
             ?? \App\Models\PaymentSetting::first();
 
-        if ($setting && filled($setting->midtrans_server_key) && $signatureKey) {
-            $expected = hash('sha512', $orderId . $statusCode . $grossAmount . $setting->midtrans_server_key);
-            if (!hash_equals($expected, $signatureKey)) {
-                return response()->json(['success' => false, 'message' => 'Invalid signature'], 403);
-            }
+        if (! $setting || ! filled($setting->midtrans_server_key)) {
+            return response()->json(['success' => false, 'message' => 'Midtrans callback secret is not configured'], 503);
+        }
+
+        if (! is_string($signatureKey) || $signatureKey === '') {
+            return response()->json(['success' => false, 'message' => 'Missing signature'], 403);
+        }
+
+        $expected = hash('sha512', $orderId . $statusCode . $grossAmount . $setting->midtrans_server_key);
+        if (!hash_equals($expected, $signatureKey)) {
+            return response()->json(['success' => false, 'message' => 'Invalid signature'], 403);
         }
 
         $rawStatus = match (true) {

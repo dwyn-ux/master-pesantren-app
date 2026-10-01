@@ -192,7 +192,7 @@ class TagihanController extends Controller
                 CURLOPT_POSTFIELDS     => http_build_query($payload),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT        => 30,
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
             ]);
             $response = curl_exec($ch);
             $error    = curl_error($ch);
@@ -294,7 +294,7 @@ class TagihanController extends Controller
                 CURLOPT_POSTFIELDS     => json_encode($payload),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT        => 30,
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYPEER => true,
             ]);
             $response = curl_exec($ch);
             $error    = curl_error($ch);

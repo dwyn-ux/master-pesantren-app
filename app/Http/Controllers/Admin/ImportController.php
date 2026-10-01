@@ -182,7 +182,7 @@ class ImportController extends Controller
             $username = $nis . '_' . $suffix++;
         }
 
-        $password = $nis; // password default = NIS santri
+        $password = Str::random(16);
         $user = User::create([
             'name'           => $nama,
             'username'       => $username,

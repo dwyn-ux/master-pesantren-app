@@ -48,4 +48,8 @@ return [
         'mode'          => env('TRIPAY_MODE', 'sandbox'), // sandbox or production
     ],
 
+    'hardware' => [
+        'token' => env('HARDWARE_API_TOKEN'),
+    ],
+
 ];

@@ -57,6 +57,10 @@ class FingerprintController extends Controller
      */
     public function apiSync(Request $request): JsonResponse
     {
+        if ($response = $this->authorizeHardwareRequest($request)) {
+            return $response;
+        }
+
         $request->validate([
             'device_id'      => 'required|string',
             'fingerprint_id' => 'required|string',
@@ -64,7 +68,9 @@ class FingerprintController extends Controller
             'timestamp'      => 'required|integer',
         ]);
 
-        // TODO: Verify device signature/token untuk security
+        if (abs(now()->timestamp - (int) $request->timestamp) > 300) {
+            return response()->json(['success' => false, 'message' => 'Request timestamp expired'], 401);
+        }
 
         if ($request->action === 'register') {
             return $this->registerFingerprintFromDevice($request);
@@ -133,5 +139,22 @@ class FingerprintController extends Controller
         $santri->update(['fingerprint_id' => null]);
 
         return back()->with('success', "Fingerprint {$nama} berhasil dihapus.");
+    }
+
+    private function authorizeHardwareRequest(Request $request): ?JsonResponse
+    {
+        $configuredToken = config('services.hardware.token');
+
+        if (! filled($configuredToken)) {
+            return response()->json(['success' => false, 'message' => 'Hardware API disabled'], 403);
+        }
+
+        $providedToken = $request->bearerToken() ?: $request->header('X-Hardware-Token');
+
+        if (! is_string($providedToken) || ! hash_equals($configuredToken, $providedToken)) {
+            return response()->json(['success' => false, 'message' => 'Invalid hardware token'], 401);
+        }
+
+        return null;
     }
 }

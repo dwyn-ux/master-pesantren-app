@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminSeeder extends Seeder
 {
@@ -20,10 +21,7 @@ class AdminSeeder extends Seeder
         $lines = ["=== Kredensial Staff (generated: " . now() . ") ===\n"];
 
         foreach ($accounts as $item) {
-            $password = match($item['username']) {
-                'admin' => 'Admin@1234',  // default — wajib diganti setelah login pertama
-                default => \Illuminate\Support\Str::random(10),
-            };
+            $password = Str::random(16);
 
             $user = User::firstOrCreate(
                 ['username' => $item['username']],

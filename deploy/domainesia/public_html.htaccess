@@ -11,6 +11,13 @@
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
+    # Never execute or expose active code that was uploaded into public storage.
+    RewriteRule ^storage/.*\.(php[0-9]?|phtml|phar|cgi|pl|asp|aspx|jsp|sh|bash|cmd|bat|exe|dll|so)$ - [F,L,NC]
+
+    # Block common dump, backup, and hidden files if they ever land in document root.
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule \.(env|log|sql|sqlite|bak|backup|old|orig|save|swp|tmp|ini|conf|yml|yaml)$ - [F,L,NC]
+
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
@@ -30,7 +37,7 @@
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-<FilesMatch "(\.env|\.git|composer\.(json|lock)|package\.json|artisan)$">
+<FilesMatch "(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|server\.php)$">
     Order allow,deny
     Deny from all
 </FilesMatch>

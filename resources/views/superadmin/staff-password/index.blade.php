@@ -119,14 +119,14 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            {{-- Reset ke default --}}
+                            {{-- Reset ke password acak --}}
                             <form method="POST" action="{{ route('superadmin.staff-password.reset', $user) }}"
-                                  onsubmit="return confirm('Reset password {{ $user->name }} ke default ({{ $user->username }}@1234)?')">
+                                  onsubmit="return confirm('Reset password {{ $user->name }} ke password acak baru?')">
                                 @csrf @method('PATCH')
                                 <button type="submit"
                                         class="px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 text-xs font-medium transition-colors flex items-center gap-1.5"
-                                        title="Reset ke password default">
-                                    <i class="fa-solid fa-rotate-left"></i> Reset Default
+                                        title="Reset ke password acak">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset Acak
                                 </button>
                             </form>
 
@@ -143,7 +143,7 @@
                                 @csrf @method('PUT')
                                 <p class="text-xs font-bold text-purple-700 mb-3">Set Password Baru — {{ $user->name }}</p>
                                 <div class="space-y-2">
-                                    <input type="password" name="password" placeholder="Password baru (min. 6 karakter)"
+                                    <input type="password" name="password" placeholder="Password baru (min. 8 karakter)"
                                            class="w-full px-3 py-2 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none text-sm bg-white">
                                     <input type="password" name="password_confirmation" placeholder="Konfirmasi password"
                                            class="w-full px-3 py-2 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none text-sm bg-white">
@@ -188,7 +188,7 @@
 {{-- Info box --}}
 <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700">
     <i class="fa-solid fa-circle-info mr-2"></i>
-    <strong>Reset Default</strong> akan mengubah password menjadi <code class="bg-blue-100 px-1 rounded">username@1234</code> dan menandai akun wajib ganti password saat login berikutnya.
+    <strong>Reset Acak</strong> akan membuat password sementara yang kuat dan menandai akun wajib ganti password saat login berikutnya.
 </div>
 
 @endsection

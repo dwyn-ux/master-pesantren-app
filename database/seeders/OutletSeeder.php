@@ -31,14 +31,14 @@ class OutletSeeder extends Seeder
         $lines = ["=== Kredensial Outlet (generated: " . now() . ") ===\n"];
 
         foreach ($outlets as $item) {
-            $password = Str::random(8);
+            $password = Str::random(16);
 
             $user = User::firstOrCreate(
                 ['username' => $item['username']],
                 [
                     'name'           => $item['nama_user'],
                     'password'       => Hash::make($password),
-                    'must_change_pw' => false,
+                    'must_change_pw' => true,
                     'is_active'      => true,
                 ]
             );

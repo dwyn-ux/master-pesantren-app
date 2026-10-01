@@ -6,6 +6,7 @@ Aplikasi manajemen pesantren berbasis Laravel.
 
 - VPS production: lihat [DEPLOY.md](DEPLOY.md).
 - Shared hosting DomaiNesia: lihat [DEPLOY-DOMAINESIA.md](DEPLOY-DOMAINESIA.md).
+- Checklist security DomaiNesia: lihat [SECURITY-DOMAINESIA.md](SECURITY-DOMAINESIA.md).
 - Template environment DomaiNesia: salin `.env.domainesia.example` menjadi `.env` di hosting, lalu isi kredensial production.
 
 > Migrasi dari VPS ke shared hosting harus mempertahankan `APP_KEY` lama, database production, dan folder `storage/app/public`.
