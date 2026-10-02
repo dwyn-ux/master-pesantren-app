@@ -28,10 +28,12 @@ return new class extends Migration
         // PostgreSQL tidak mendukung MODIFY COLUMN ENUM secara langsung via Laravel/DB::statement MySQL style.
         // Cara paling aman di Laravel adalah membiarkan kolom tersebut string atau me-recreate-nya jika perlu.
         // Namun untuk fix cepat, kita pastikan kolom tersebut bisa menerima 'midtrans_snap'.
-        if (config('database.default') === 'pgsql') {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
             DB::statement("ALTER TABLE pembayaran ALTER COLUMN metode TYPE VARCHAR(255)");
             DB::statement("ALTER TABLE pembayaran DROP CONSTRAINT IF EXISTS pembayaran_metode_check");
-        } else {
+        } elseif ($driver === 'mysql') {
             DB::statement("ALTER TABLE pembayaran MODIFY COLUMN metode ENUM('va_bca','va_mandiri','qris','gopay','ovo','manual','midtrans_snap')");
         }
     }
@@ -42,7 +44,7 @@ return new class extends Migration
             $table->dropColumn(['tagihan_ids', 'topup_items', 'snap_token', 'payment_url']);
         });
 
-        if (config('database.default') === 'mysql') {
+        if (DB::connection()->getDriverName() === 'mysql') {
             DB::statement("ALTER TABLE pembayaran MODIFY COLUMN metode ENUM('va_bca','va_mandiri','qris','gopay','ovo','manual')");
         }
 
