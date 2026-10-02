@@ -11,6 +11,16 @@
 @endsection
 
 @section('content')
+@php
+    $selectedSantriIds = collect(old('santri_ids', $wali?->santri?->pluck('id')->all() ?? []))
+        ->map(fn($id) => (int) $id)
+        ->all();
+
+    $hubunganBySantri = old('hubungan', $wali?->santri?->mapWithKeys(fn($item) => [
+        $item->id => $item->pivot->hubungan,
+    ])->all() ?? []);
+@endphp
+
 <div class="glass-panel rounded-2xl shadow-sm overflow-hidden max-w-4xl">
     <div class="border-b border-gray-100 bg-white/50 px-6 py-4 flex items-center justify-between">
         <h6 class="text-lg font-bold text-gray-800">{{ $wali ? 'Edit Data Wali' : 'Tambah Wali Baru' }}</h6>
@@ -41,11 +51,10 @@
                            placeholder="08xxxxxxxxxx">
                     @error('no_hp')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
                 </div>
-                </div>
 
-                @if(!$wali)
-                <div class="md:col-span-12 mt-4">
+                <div class="md:col-span-12">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Kaitkan ke Santri (Anak)</label>
+                    @error('santri_ids')<div class="text-red-500 text-sm mb-2">{{ $message }}</div>@enderror
                     <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50/50">
                         <div class="max-h-64 overflow-y-auto p-2">
                             @forelse($santri as $s)
@@ -53,16 +62,16 @@
                                 <label class="flex items-center cursor-pointer flex-1">
                                     <input type="checkbox" name="santri_ids[]" value="{{ $s->id }}"
                                            class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                           @checked(in_array($s->id, old('santri_ids', [])))>
+                                           @checked(in_array($s->id, $selectedSantriIds, true))>
                                     <div class="ml-3">
                                         <span class="block text-sm font-medium text-gray-800">{{ $s->nama }}</span>
                                         <span class="block text-xs text-gray-500 mt-0.5">NIS: {{ $s->nis }}</span>
                                     </div>
                                 </label>
                                 <select name="hubungan[{{ $s->id }}]" class="w-full sm:w-32 px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm bg-gray-50">
-                                    <option value="ayah">Ayah</option>
-                                    <option value="ibu">Ibu</option>
-                                    <option value="wali">Wali Lain</option>
+                                    <option value="ayah" @selected(($hubunganBySantri[$s->id] ?? 'wali') === 'ayah')>Ayah</option>
+                                    <option value="ibu" @selected(($hubunganBySantri[$s->id] ?? 'wali') === 'ibu')>Ibu</option>
+                                    <option value="wali" @selected(($hubunganBySantri[$s->id] ?? 'wali') === 'wali')>Wali Lain</option>
                                 </select>
                             </div>
                             @empty
@@ -73,7 +82,6 @@
                         </div>
                     </div>
                 </div>
-                @endif
             </div>
 
             <div class="flex flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-100">

@@ -114,20 +114,46 @@ class WaliController extends Controller
     public function update(Request $request, Wali $wali)
     {
         $request->validate([
-            'nama'    => 'required|string|max:100',
-            'nama_ar' => 'nullable|string|max:200',
-            'no_hp'   => 'required|string|max:20',
+            'nama'        => 'required|string|max:100',
+            'nama_ar'     => 'nullable|string|max:200',
+            'no_hp'       => 'required|string|max:20',
+            'santri_ids'  => 'required|array|min:1',
+            'santri_ids.*'=> 'exists:santri,id',
+            'hubungan'    => 'nullable|array',
         ]);
 
-        $wali->update([
-            'nama'    => $request->nama,
-            'nama_ar' => $request->nama_ar,
-            'no_hp'   => $request->no_hp,
-        ]);
-        $wali->user->update(['name' => $request->nama]);
+        foreach ($request->santri_ids as $santriId) {
+            $exists = Wali::whereKeyNot($wali->id)
+                ->where('nama', $request->nama)
+                ->whereHas('santri', fn($q) => $q->where('santri_id', $santriId))
+                ->exists();
+
+            if ($exists) {
+                $santri = Santri::find($santriId);
+                return back()->withInput()->withErrors(['nama' => "Wali {$request->nama} sudah terhubung dengan santri {$santri->nama}."]);
+            }
+        }
+
+        DB::transaction(function () use ($request, $wali) {
+            $wali->update([
+                'nama'    => $request->nama,
+                'nama_ar' => $request->nama_ar,
+                'no_hp'   => $request->no_hp,
+            ]);
+            $wali->user->update(['name' => $request->nama]);
+
+            $syncData = [];
+            foreach ($request->santri_ids as $santriId) {
+                $syncData[$santriId] = [
+                    'hubungan' => $request->hubungan[$santriId] ?? 'wali',
+                ];
+            }
+
+            $wali->santri()->sync($syncData);
+        });
 
         return redirect()->route('admin.wali.index')
-            ->with('success', "Data {$wali->nama} berhasil diperbarui.");
+            ->with('success', "Data dan relasi santri {$wali->nama} berhasil diperbarui.");
     }
 
     public function destroy(Wali $wali)
