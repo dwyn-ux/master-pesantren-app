@@ -131,6 +131,31 @@ Buka `http://127.0.0.1:8000`.
 | Ustadz dummy | `ustadz.ahmad` | `ustadz123` | Tidak (dev only) |
 | Wali dummy | `wali.bapak.hasan` | `wali123` | Tidak (dev only) |
 
+## Akun Demo (Opsional)
+
+Akun demo tidak dibuat oleh `php artisan migrate --seed` agar kredensial publik
+tidak masuk ke instalasi production secara tidak sengaja. Untuk membuat atau
+mereset akun demo role admin, isi password minimal 12 karakter hanya di `.env`
+server (jangan commit file `.env`):
+
+```dotenv
+DEMO_ACCOUNT_NAME="Akun Demo"
+DEMO_ACCOUNT_USERNAME=demo
+DEMO_ACCOUNT_PASSWORD="ganti-dengan-password-kuat"
+```
+
+Password tidak memiliki nilai default dan seeder akan menolak berjalan jika
+belum dikonfigurasi. Setelah itu muat ulang cache konfigurasi dan jalankan
+seedernya:
+
+```bash
+php artisan config:cache
+php artisan db:seed --class=DemoAccountSeeder --force
+```
+
+Jangan jalankan seeder ini pada database operasional yang bukan khusus
+demonstrasi.
+
 ## Verifikasi Instalasi
 
 ```bash
