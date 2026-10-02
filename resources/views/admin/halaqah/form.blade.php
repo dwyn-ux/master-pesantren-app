@@ -43,17 +43,28 @@
                 </div>
 
                 @if($halaqah && isset($santri))
-                <div>
+                <div x-data="{ santriSearch: '' }">
                     <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center justify-between">
                         <span>Anggota Santri (Checklist untuk memasukkan ke Halaqah ini)</span>
                         <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs border border-indigo-100">{{ $santri->count() }} Tersedia</span>
                     </label>
                     
                     <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50/50">
+                        <div class="p-2 border-b border-gray-200 bg-white">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="search"
+                                       x-model.debounce.150ms="santriSearch"
+                                       class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm"
+                                       placeholder="Cari nama atau NIS santri">
+                            </div>
+                        </div>
                         <div class="max-h-72 overflow-y-auto p-2">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 @forelse($santri as $s)
-                                <label class="flex items-center cursor-pointer p-3 bg-white rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors">
+                                <label class="flex items-center cursor-pointer p-3 bg-white rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
+                                       data-santri-search="{{ strtolower($s->nama . ' ' . $s->nis) }}"
+                                       x-show="$el.dataset.santriSearch.includes(santriSearch.toLowerCase())">
                                     <input type="checkbox" name="santri_ids[]" value="{{ $s->id }}"
                                            class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                            @checked($halaqah->santri->contains($s->id))>
