@@ -52,13 +52,24 @@
                     @error('no_hp')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="md:col-span-12">
+                <div class="md:col-span-12" x-data="{ santriSearch: '' }">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Kaitkan ke Santri (Anak)</label>
                     @error('santri_ids')<div class="text-red-500 text-sm mb-2">{{ $message }}</div>@enderror
                     <div class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50/50">
+                        <div class="p-2 border-b border-gray-200 bg-white">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                <input type="search"
+                                       x-model.debounce.150ms="santriSearch"
+                                       class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all text-sm"
+                                       placeholder="Cari nama atau NIS santri">
+                            </div>
+                        </div>
                         <div class="max-h-64 overflow-y-auto p-2">
                             @forelse($santri as $s)
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white rounded-lg border border-gray-100 mb-2 hover:border-indigo-200 transition-colors gap-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white rounded-lg border border-gray-100 mb-2 hover:border-indigo-200 transition-colors gap-3"
+                                 data-santri-search="{{ strtolower($s->nama . ' ' . $s->nis) }}"
+                                 x-show="$el.dataset.santriSearch.includes(santriSearch.toLowerCase())">
                                 <label class="flex items-center cursor-pointer flex-1">
                                     <input type="checkbox" name="santri_ids[]" value="{{ $s->id }}"
                                            class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
