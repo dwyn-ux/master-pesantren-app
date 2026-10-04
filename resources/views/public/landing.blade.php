@@ -191,12 +191,12 @@
                     <i class="fa-regular fa-clock"></i> Jadwal Sholat
                 </a>
             </div>
-        </div>
-        
-        <!-- Scroll indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce text-indigo-300/60">
-            <span class="text-xs font-bold uppercase tracking-widest mb-2">Eksplorasi</span>
-            <i class="fa-solid fa-arrow-down"></i>
+
+            <!-- Keep the scroll cue in the normal layout flow so it never overlaps the CTA buttons. -->
+            <div class="mt-10 sm:mt-12 flex flex-col items-center text-indigo-300/60 animate-bounce">
+                <span class="text-xs font-bold uppercase tracking-widest mb-2">Eksplorasi</span>
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
         </div>
     </div>
 
