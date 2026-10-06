@@ -47,8 +47,8 @@
                     <i class="fa-solid fa-clock"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold">Menunggu Pembayaran</h3>
-                    <p class="text-amber-100 text-sm">Selesaikan pembayaran sebelum batas waktu habis.</p>
+                    <h3 class="text-xl font-bold">{{ $pembayaran->isManualTransfer() ? 'Menunggu Konfirmasi Admin' : 'Menunggu Pembayaran' }}</h3>
+                    <p class="text-amber-100 text-sm">{{ $pembayaran->isManualTransfer() ? 'Bukti transfer sudah dikirim dan sedang diperiksa.' : 'Selesaikan pembayaran sebelum batas waktu habis.' }}</p>
                 </div>
             </div>
         </div>
@@ -113,7 +113,11 @@
             </div>
             <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500">Metode</span>
-                <span class="font-semibold text-gray-800">{{ $pembayaran->tripay_channel ?? $pembayaran->metode ?? '-' }}</span>
+                <span class="font-semibold text-gray-800">
+                    {{ $pembayaran->metode === 'manual'
+                        ? ($pembayaran->manual_type === 'cash' ? 'Tunai / Cash' : 'Transfer Manual')
+                        : ($pembayaran->tripay_channel ?? $pembayaran->metode ?? '-') }}
+                </span>
             </div>
             <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500">Status</span>
@@ -130,17 +134,37 @@
                     } }}
                 </span>
             </div>
+            @if($pembayaran->proof_path)
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500">Bukti Transfer</span>
+                <a href="{{ route('wali.tagihan.payment.proof', $pembayaran) }}" class="font-semibold text-indigo-600 hover:underline">
+                    <i class="fa-solid fa-paperclip mr-1"></i> Lihat bukti
+                </a>
+            </div>
+            @endif
+            @if($pembayaran->rejection_note)
+            <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+                <strong>Alasan ditolak:</strong> {{ $pembayaran->rejection_note }}
+            </div>
+            @endif
         </div>
     </div>
     @endif
 
     {{-- Actions --}}
     <div class="flex flex-col sm:flex-row items-center gap-3">
-        @if($pembayaran && $pembayaran->status === 'pending' && $pembayaran->payment_url ?? null)
+        @if($pembayaran && $pembayaran->status === 'pending' && ($pembayaran->payment_url ?? null))
         <a href="{{ $pembayaran->payment_url }}" target="_blank"
            class="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-colors shadow-sm">
             <i class="fa-solid fa-external-link"></i> Lanjut ke Halaman Pembayaran
         </a>
+        @elseif($pembayaran && $pembayaran->status === 'pending' && $pembayaran->isManualTransfer())
+        <form method="POST" action="{{ route('wali.tagihan.payment.cancel', $pembayaran) }}" class="w-full sm:w-auto" onsubmit="return confirm('Batalkan pengajuan bukti transfer ini?')">
+            @csrf
+            <button class="w-full px-6 py-3 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl font-medium text-sm transition-colors">
+                <i class="fa-solid fa-xmark mr-1"></i> Batalkan Pengajuan
+            </button>
+        </form>
         @elseif($pembayaran && in_array($pembayaran->status, ['expired', 'failed']))
         <a href="{{ route('wali.tagihan.pay', $tagihan) }}"
            class="w-full sm:w-auto text-center inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-colors shadow-sm">

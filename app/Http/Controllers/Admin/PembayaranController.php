@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
-use App\Models\Santri;
+use App\Models\PaymentSetting;
 use App\Models\Tagihan;
 use App\Models\TopUpRequest;
 use App\Models\Wali;
-use App\Models\WalletTransaction;
+use App\Services\PaymentSettlementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
 {
@@ -20,7 +22,7 @@ class PembayaranController extends Controller
     private ?string $tripayPrivateKey;
     private ?string $tripayMerchantCode;
 
-    public function __construct()
+    public function __construct(private PaymentSettlementService $settlement)
     {
         $mode = config("services.tripay.mode", "sandbox");
         $this->tripayApiUrl =
@@ -108,7 +110,8 @@ class PembayaranController extends Controller
             "qris" => "QRIS",
             "gopay" => "Gopay",
             "ovo" => "OVO",
-            "manual" => "Manual",
+            "manual_cash" => "Tunai / Cash",
+            "manual_transfer" => "Transfer Bank + Bukti",
         ];
 
         return view(
@@ -121,7 +124,9 @@ class PembayaranController extends Controller
     {
         $request->validate([
             "tagihan_id" => "required|exists:tagihan,id",
-            "metode" => "required|in:va_bca,va_mandiri,qris,gopay,ovo,manual",
+            "metode" => "required|in:va_bca,va_mandiri,qris,gopay,ovo,manual_cash,manual_transfer",
+            "proof" => "required_if:metode,manual_transfer|nullable|file|mimes:jpg,jpeg,png,pdf|max:5120",
+            "manual_note" => "nullable|string|max:500",
         ]);
 
         $tagihan = Tagihan::with(["santri.wali", "jenisTagihan"])->findOrFail(
@@ -140,29 +145,47 @@ class PembayaranController extends Controller
             return back()->with("error", "Tagihan sudah lunas.");
         }
 
-        if ($request->metode === "manual") {
-            $pembayaran = DB::transaction(function () use (
-                $tagihan,
-                $wali,
-                $request,
-            ) {
-                $pembayaran = Pembayaran::create([
-                    "tagihan_id" => $tagihan->id,
-                    "wali_id" => $wali->id,
-                    "nominal" => $tagihan->nominal,
-                    "metode" => $request->metode,
-                    "status" => "paid",
-                    "paid_at" => now(),
-                ]);
+        if (in_array($request->metode, ["manual_cash", "manual_transfer"], true)) {
+            $proofPath = null;
 
-                $tagihan->update(["status" => "lunas"]);
+            if ($request->hasFile('proof')) {
+                $proofPath = $request->file('proof')->store('payment-proofs', 'local');
+            }
 
-                return $pembayaran;
-            });
+            try {
+                $pembayaran = DB::transaction(function () use ($tagihan, $wali, $request, $proofPath) {
+                    $pembayaran = Pembayaran::create([
+                        "tagihan_id" => $tagihan->id,
+                        "wali_id" => $wali->id,
+                        "nominal" => $tagihan->nominal,
+                        "metode" => "manual",
+                        "manual_type" => $request->metode === 'manual_cash' ? 'cash' : 'transfer',
+                        "tripay_ref" => 'MANUAL-' . Str::ulid(),
+                        "proof_path" => $proofPath,
+                        "proof_original_name" => $request->file('proof')?->getClientOriginalName(),
+                        "submitted_at" => now(),
+                        "confirmed_by" => auth()->id(),
+                        "confirmed_at" => now(),
+                        "manual_note" => $request->manual_note,
+                        "status" => "paid",
+                        "paid_at" => now(),
+                    ]);
+
+                    $tagihan->update(["status" => "lunas"]);
+
+                    return $pembayaran;
+                });
+            } catch (\Throwable $e) {
+                if ($proofPath) {
+                    Storage::disk('local')->delete($proofPath);
+                }
+
+                throw $e;
+            }
 
             return redirect()
                 ->route("admin.pembayaran.show", $pembayaran)
-                ->with("success", "Pembayaran manual berhasil dicatat.");
+                ->with("success", "Pembayaran manual berhasil dicatat dan tagihan sudah lunas.");
         }
 
         if (!$this->hasTripayConfig()) {
@@ -177,7 +200,7 @@ class PembayaranController extends Controller
             "wali_id" => $wali->id,
             "nominal" => $tagihan->nominal,
             "metode" => $request->metode,
-            "tripay_ref" => "PESANTREN-" . $tagihan->id . "-" . time(),
+            "tripay_ref" => "PESANTREN-" . Str::ulid(),
             "tripay_channel" => $this->mapChannelCode($request->metode),
             "status" => "pending",
         ]);
@@ -204,7 +227,7 @@ class PembayaranController extends Controller
 
     public function show(Pembayaran $pembayaran)
     {
-        $pembayaran->load(["tagihan.santri", "tagihan.jenisTagihan", "wali"]);
+        $pembayaran->load(["tagihan.santri", "tagihan.jenisTagihan", "wali", "confirmer"]);
 
         return view("admin.pembayaran.show", compact("pembayaran"));
     }
@@ -220,8 +243,51 @@ class PembayaranController extends Controller
         return back()->with('success', 'Transaksi berhasil dibatalkan. Tagihan sekarang dapat dipilih kembali.');
     }
 
+    public function confirmManual(Request $request, Pembayaran $pembayaran)
+    {
+        $data = $request->validate([
+            'manual_note' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            $this->settlement->confirmManual($pembayaran, $request->user(), $data['manual_note'] ?? null);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Bukti transfer dikonfirmasi. Tagihan sudah dilunasi.');
+    }
+
+    public function rejectManual(Request $request, Pembayaran $pembayaran)
+    {
+        $data = $request->validate([
+            'rejection_note' => 'required|string|max:500',
+        ]);
+
+        try {
+            $this->settlement->rejectManual($pembayaran, $request->user(), $data['rejection_note']);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Bukti transfer ditolak. Wali dapat mengunggah bukti baru.');
+    }
+
+    public function proof(Pembayaran $pembayaran)
+    {
+        abort_unless($pembayaran->proof_path && Storage::disk('local')->exists($pembayaran->proof_path), 404);
+
+        return Storage::disk('local')->download(
+            $pembayaran->proof_path,
+            $pembayaran->proof_original_name ?: basename($pembayaran->proof_path),
+        );
+    }
+
     public function checkStatus(Pembayaran $pembayaran)
     {
+        if ($pembayaran->metode === 'manual') {
+            return back()->with('error', 'Pembayaran manual dikonfirmasi dari tombol konfirmasi bukti, bukan gateway.');
+        }
         if ($pembayaran->metode === 'midtrans_snap' || $pembayaran->metode === 'midtrans') {
             return $this->checkMidtransStatus($pembayaran);
         }
@@ -303,6 +369,7 @@ class PembayaranController extends Controller
     {
         $rawBody = $request->getContent();
         $signature = $request->header("X-Callback-Signature");
+        $this->loadTripayConfig();
 
         if (! filled($this->tripayPrivateKey)) {
             return response()->json(
@@ -346,6 +413,10 @@ class PembayaranController extends Controller
         $pembayaran = Pembayaran::where("tripay_ref", $reference)->first();
 
         if ($pembayaran) {
+            if ($request->filled('total_amount') && (int) $request->input('total_amount') !== (int) $pembayaran->nominal) {
+                return response()->json(["success" => false, "message" => "Nominal callback tidak cocok"], 422);
+            }
+
             $this->applyPaymentStatus($pembayaran, strtoupper($status));
             return response()->json(["success" => true]);
         }
@@ -353,6 +424,10 @@ class PembayaranController extends Controller
         $topUp = TopUpRequest::where("tripay_ref", $reference)->first();
 
         if ($topUp) {
+            if ($request->filled('total_amount') && (int) $request->input('total_amount') !== (int) $topUp->nominal) {
+                return response()->json(["success" => false, "message" => "Nominal callback tidak cocok"], 422);
+            }
+
             $this->applyTopUpStatus($topUp, strtoupper($status));
             return response()->json(["success" => true]);
         }
@@ -365,6 +440,7 @@ class PembayaranController extends Controller
 
     private function createTripayInvoice(Pembayaran $pembayaran): array
     {
+        $this->loadTripayConfig();
         $pembayaran->load(["tagihan.santri", "tagihan.jenisTagihan", "wali"]);
         $tagihan = $pembayaran->tagihan;
 
@@ -447,6 +523,7 @@ class PembayaranController extends Controller
 
     private function checkTripayStatus(string $reference): array
     {
+        $this->loadTripayConfig();
         try {
             $ch = curl_init();
             curl_setopt_array($ch, [
@@ -536,7 +613,22 @@ class PembayaranController extends Controller
         $pembayaran = Pembayaran::where('tripay_ref', $orderId)->first();
 
         if ($pembayaran) {
+            if ((int) round((float) $grossAmount) !== (int) $pembayaran->nominal) {
+                return response()->json(['success' => false, 'message' => 'Nominal callback tidak cocok'], 422);
+            }
+
             $this->applyPaymentStatus($pembayaran, $rawStatus);
+            return response()->json(['success' => true]);
+        }
+
+        $topUp = TopUpRequest::where('tripay_ref', $orderId)->first();
+
+        if ($topUp) {
+            if ((int) round((float) $grossAmount) !== (int) $topUp->nominal) {
+                return response()->json(['success' => false, 'message' => 'Nominal callback tidak cocok'], 422);
+            }
+
+            $this->applyTopUpStatus($topUp, $rawStatus);
             return response()->json(['success' => true]);
         }
 
@@ -547,123 +639,37 @@ class PembayaranController extends Controller
         Pembayaran $pembayaran,
         string $tripayStatus,
     ): void {
-        $statusMap = [
-            "PAID" => "paid",
-            "SETTLED" => "paid",
-            "UNPAID" => "pending",
-            "PENDING" => "pending",
-            "EXPIRED" => "expired",
-            "FAILED" => "failed",
-            "REFUND" => "failed",
-        ];
-
-        $newStatus = $statusMap[strtoupper($tripayStatus)] ?? "pending";
-
-        DB::transaction(function () use ($pembayaran, $newStatus) {
-            $pembayaran->refresh();
-
-            if ($pembayaran->status === "paid") {
-                return;
-            }
-
-            $pembayaran->update([
-                "status" => $newStatus,
-                "paid_at" => $newStatus === "paid" ? now() : $pembayaran->paid_at,
-            ]);
-
-            if ($newStatus === "paid") {
-                // Beri log biar keliatan di server
-                \Log::info('Otomatis melunasi tagihan untuk pembayaran ID: ' . $pembayaran->id);
-
-                // Batch tagihans
-                if ($pembayaran->tagihan_ids) {
-                    Tagihan::whereIn('id', $pembayaran->tagihan_ids)->update(['status' => 'lunas']);
-                } elseif ($pembayaran->tagihan_id) {
-                    Tagihan::where('id', $pembayaran->tagihan_id)->update(['status' => 'lunas']);
-                }
-
-                // Batch top-ups
-                if ($pembayaran->topup_items) {
-                    foreach ($pembayaran->topup_items as $item) {
-                        $santri = Santri::lockForUpdate()->find($item['santri_id']);
-                        if (!$santri) continue;
-
-                        $saldoBefore = $santri->saldo;
-                        $saldoAfter  = $saldoBefore + $item['nominal'];
-
-                        $santri->update(['saldo' => $saldoAfter]);
-
-                        WalletTransaction::create([
-                            'santri_id'      => $santri->id,
-                            'tipe'           => 'topup',
-                            'referensi_id'   => $pembayaran->id,
-                            'referensi_tipe' => Pembayaran::class,
-                            'nominal'        => $item['nominal'],
-                            'jenis'          => 'kredit',
-                            'saldo_sebelum'  => $saldoBefore,
-                            'saldo_sesudah'  => $saldoAfter,
-                            'keterangan'     => 'Top up via checkout batch',
-                        ]);
-                    }
-                }
-            }
-        });
+        $this->settlement->applyPaymentStatus($pembayaran, $tripayStatus);
     }
 
     private function applyTopUpStatus(TopUpRequest $topUp, string $tripayStatus): void
     {
-        $statusMap = [
-            "PAID"    => "paid",
-            "SETTLED" => "paid",
-            "UNPAID"  => "unpaid",
-            "PENDING" => "unpaid",
-            "EXPIRED" => "expired",
-            "FAILED"  => "failed",
-            "REFUND"  => "failed",
-        ];
-
-        $newStatus = $statusMap[$tripayStatus] ?? "unpaid";
-
-        DB::transaction(function () use ($topUp, $newStatus) {
-            $topUp->refresh();
-
-            if ($topUp->status === "paid") {
-                return;
-            }
-
-            $topUp->update([
-                "status"  => $newStatus,
-                "paid_at" => $newStatus === "paid" ? now() : $topUp->paid_at,
-            ]);
-
-            if ($newStatus === "paid") {
-                $santri = Santri::lockForUpdate()->findOrFail($topUp->santri_id);
-
-                $saldoBefore = $santri->saldo;
-                $saldoAfter  = $saldoBefore + $topUp->nominal;
-
-                $santri->update(["saldo" => $saldoAfter]);
-
-                WalletTransaction::create([
-                    "santri_id"      => $santri->id,
-                    "tipe"           => "topup",
-                    "referensi_id"   => $topUp->id,
-                    "referensi_tipe" => TopUpRequest::class,
-                    "nominal"        => $topUp->nominal,
-                    "jenis"          => "kredit",
-                    "saldo_sebelum"  => $saldoBefore,
-                    "saldo_sesudah"  => $saldoAfter,
-                    "keterangan"     => "Top up saldo via Tripay (" . ($topUp->tripay_channel ?? "online") . ")",
-                ]);
-            }
-        });
+        $this->settlement->applyTopUpStatus($topUp, $tripayStatus);
     }
 
     private function hasTripayConfig(): bool
     {
+        $this->loadTripayConfig();
+
         return filled($this->tripayApiKey) &&
             filled($this->tripayPrivateKey) &&
             filled($this->tripayMerchantCode);
+    }
+
+    private function loadTripayConfig(): void
+    {
+        $setting = PaymentSetting::first();
+
+        if (! $setting) {
+            return;
+        }
+
+        $this->tripayApiKey = $setting->tripay_api_key ?: $this->tripayApiKey;
+        $this->tripayPrivateKey = $setting->tripay_private_key ?: $this->tripayPrivateKey;
+        $this->tripayMerchantCode = $setting->tripay_merchant_code ?: $this->tripayMerchantCode;
+        $this->tripayApiUrl = ($setting->tripay_mode ?? 'sandbox') === 'production'
+            ? 'https://tripay.co.id/api'
+            : 'https://tripay.co.id/api-sandbox';
     }
 
     private function mapChannelCode(string $metode): string

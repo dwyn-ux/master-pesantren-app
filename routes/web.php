@@ -210,6 +210,18 @@ Route::middleware(["auth", "must.change.pw", "role:admin"])
                 PembayaranController::class,
                 "cancel",
             ])->name("pembayaran.cancel");
+            Route::post("pembayaran/{pembayaran}/confirm-manual", [
+                PembayaranController::class,
+                "confirmManual",
+            ])->name("pembayaran.confirm-manual");
+            Route::post("pembayaran/{pembayaran}/reject-manual", [
+                PembayaranController::class,
+                "rejectManual",
+            ])->name("pembayaran.reject-manual");
+            Route::get("pembayaran/{pembayaran}/proof", [
+                PembayaranController::class,
+                "proof",
+            ])->name("pembayaran.proof");
 
             Route::get("payment-settings", [
                 \App\Http\Controllers\Admin\PaymentSettingController::class,
@@ -605,6 +617,8 @@ Route::middleware(["auth", "must.change.pw", "role:wali"])
             Route::post("/tagihan/{tagihan}/bayar", [\App\Http\Controllers\Wali\TagihanController::class, "processPayment"])->name("tagihan.pay.process");
             Route::get("/tagihan/{tagihan}/status", [\App\Http\Controllers\Wali\TagihanController::class, "show"])->name("tagihan.show");
             Route::post("/tagihan/checkout", [\App\Http\Controllers\Wali\TagihanController::class, "checkout"])->name("tagihan.checkout");
+            Route::post("/tagihan/payment/{pembayaran}/cancel", [\App\Http\Controllers\Wali\TagihanController::class, "cancelPayment"])->name("tagihan.payment.cancel");
+            Route::get("/tagihan/payment/{pembayaran}/proof", [\App\Http\Controllers\Wali\TagihanController::class, "proof"])->name("tagihan.payment.proof");
         });
 
         // Route Update Token via Web (untuk WebView)

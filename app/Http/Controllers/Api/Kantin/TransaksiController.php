@@ -59,7 +59,7 @@ class TransaksiController extends Controller
         foreach ($validated['transaksi'] as $row) {
             // Idempotency: cek kalau client_uuid sudah pernah masuk
             $existing = KantinOfflineTransaksi::where('client_uuid', $row['client_uuid'])->first();
-            if ($existing) {
+            if ($existing && $existing->sync_status === 'synced') {
                 $results[] = [
                     'client_uuid'        => $row['client_uuid'],
                     'status'             => 'duplicate',
@@ -70,8 +70,8 @@ class TransaksiController extends Controller
             }
 
             try {
-                $transaksiId = DB::transaction(function () use ($row, $device) {
-                    return $this->processTransaction($row, $device);
+                $transaksiId = DB::transaction(function () use ($row, $device, $existing) {
+                    return $this->processTransaction($row, $device, $existing);
                 });
 
                 $results[] = [
@@ -81,10 +81,9 @@ class TransaksiController extends Controller
                 ];
                 $successCount++;
             } catch (\Throwable $e) {
-                // Simpan offline transaksi sebagai failed (untuk debugging)
-                KantinOfflineTransaksi::create([
+                // Pertahankan log gagal agar transaksi dengan UUID yang sama dapat dicoba ulang.
+                $failureData = [
                     'kantin_device_id' => $device->id,
-                    'client_uuid'      => $row['client_uuid'],
                     'santri_id'        => $row['santri_id'] ?? null,
                     'total'            => $row['total'],
                     'items'            => $row['items'],
@@ -92,7 +91,15 @@ class TransaksiController extends Controller
                     'transaksi_at'     => $row['transaksi_at'],
                     'sync_status'      => 'failed',
                     'sync_error'       => $e->getMessage(),
-                ]);
+                ];
+
+                if ($existing) {
+                    $existing->update($failureData);
+                } else {
+                    KantinOfflineTransaksi::create($failureData + [
+                        'client_uuid' => $row['client_uuid'],
+                    ]);
+                }
 
                 $results[] = [
                     'client_uuid' => $row['client_uuid'],
@@ -126,9 +133,23 @@ class TransaksiController extends Controller
     /**
      * Process satu transaksi: save TransaksiKasir + items, debit saldo, simpan offline log.
      */
-    protected function processTransaction(array $row, $device): int
+    protected function processTransaction(array $row, $device, ?KantinOfflineTransaksi $offlineLog = null): int
     {
+        if ($row['metode_bayar'] === 'saldo' && empty($row['santri_id'])) {
+            throw new \RuntimeException('Santri wajib dipilih untuk pembayaran saldo.');
+        }
+
+        $calculatedTotal = collect($row['items'])->sum(
+            fn (array $item) => (int) $item['qty'] * (int) $item['harga'],
+        );
+
+        if ($calculatedTotal !== (int) $row['total']) {
+            throw new \RuntimeException('Total transaksi tidak sesuai dengan rincian item.');
+        }
+
         // Validasi saldo kalau bayar pakai saldo
+        $santri = null;
+
         if ($row['metode_bayar'] === 'saldo' && !empty($row['santri_id'])) {
             $santri = Santri::lockForUpdate()->find($row['santri_id']);
             if (!$santri) {
@@ -143,6 +164,27 @@ class TransaksiController extends Controller
                 $santri->checkLimitTransaksi($row['total']);
             } catch (\RuntimeException $e) {
                 throw new \RuntimeException("Limit santri {$santri->nama} tercapai: " . $e->getMessage());
+            }
+        }
+
+        $products = Produk::query()
+            ->whereIn('id', collect($row['items'])->pluck('produk_id'))
+            ->where('outlet_id', $device->outlet_id)
+            ->where('is_aktif', true)
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('id');
+
+        if ($products->count() !== count($row['items'])) {
+            throw new \RuntimeException('Satu atau lebih produk tidak aktif atau bukan milik outlet device.');
+        }
+
+        foreach ($row['items'] as $item) {
+            $product = $products->get($item['produk_id']);
+
+            if ((int) $product->stok < (int) $item['qty']) {
+                throw new \RuntimeException("Stok {$product->nama} tidak mencukupi.");
             }
         }
 
@@ -166,12 +208,11 @@ class TransaksiController extends Controller
             ]);
 
             // Kurangi stok produk
-            Produk::where('id', $item['produk_id'])->decrement('stok', $item['qty']);
+            $products->get($item['produk_id'])->decrement('stok', $item['qty']);
         }
 
         // Debit saldo & catat wallet transaction
         if ($row['metode_bayar'] === 'saldo' && !empty($row['santri_id'])) {
-            $santri = Santri::find($row['santri_id']);
             $saldoSebelum = (int) $santri->saldo;
             $santri->decrement('saldo', $row['total']);
             $saldoSesudah = $saldoSebelum - $row['total'];
@@ -190,9 +231,8 @@ class TransaksiController extends Controller
         }
 
         // Simpan log offline
-        KantinOfflineTransaksi::create([
+        $offlineData = [
             'kantin_device_id'   => $device->id,
-            'client_uuid'        => $row['client_uuid'],
             'transaksi_kasir_id' => $transaksi->id,
             'santri_id'          => $row['santri_id'] ?? null,
             'total'              => $row['total'],
@@ -201,7 +241,16 @@ class TransaksiController extends Controller
             'transaksi_at'       => $row['transaksi_at'],
             'sync_status'        => 'synced',
             'synced_at'          => now(),
-        ]);
+            'sync_error'         => null,
+        ];
+
+        if ($offlineLog) {
+            $offlineLog->update($offlineData);
+        } else {
+            KantinOfflineTransaksi::create($offlineData + [
+                'client_uuid' => $row['client_uuid'],
+            ]);
+        }
 
         return $transaksi->id;
     }

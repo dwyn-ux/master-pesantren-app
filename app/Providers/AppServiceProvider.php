@@ -12,6 +12,7 @@ use App\Observers\TopUpRequestObserver;
 use App\Observers\TransaksiKasirObserver;
 use App\Services\FeatureManager;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $connection = DB::connection();
+        $grammar = match ($connection->getDriverName()) {
+            'mysql' => new \App\Database\Query\Grammars\MySqlGrammar($connection),
+            'sqlite' => new \App\Database\Query\Grammars\SQLiteGrammar($connection),
+            default => null,
+        };
+
+        if ($grammar) {
+            $connection->setQueryGrammar($grammar);
+        }
+
         TransaksiKasir::observe(TransaksiKasirObserver::class);
         LaundryOrder::observe(LaundryOrderObserver::class);
         Pembayaran::observe(PembayaranObserver::class);

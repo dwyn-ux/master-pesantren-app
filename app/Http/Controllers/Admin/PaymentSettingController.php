@@ -70,7 +70,7 @@ class PaymentSettingController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'active_gateway' => 'required|in:tripay,midtrans,xendit',
+            'active_gateway' => 'required|in:tripay,midtrans',
             'tripay_api_key' => 'nullable|string',
             'tripay_private_key' => 'nullable|string',
             'tripay_merchant_code' => 'nullable|string',

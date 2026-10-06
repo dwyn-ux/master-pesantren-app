@@ -27,7 +27,7 @@ class PembayaranObserver
     protected function createJournal(Pembayaran $pembayaran): void
     {
         try {
-            $kasBank = $this->resolveKasBank($pembayaran->metode);
+            $kasBank = $this->resolveKasBank($pembayaran->metode, $pembayaran->manual_type);
             if (!$kasBank) return;
             $this->service->pembayaranTagihan($pembayaran, $kasBank->id);
         } catch (\Throwable $e) {
@@ -35,8 +35,12 @@ class PembayaranObserver
         }
     }
 
-    protected function resolveKasBank(?string $metode): ?KasBank
+    protected function resolveKasBank(?string $metode, ?string $manualType = null): ?KasBank
     {
+        if (strtolower((string) $metode) === 'manual') {
+            $metode = $manualType === 'cash' ? 'cash' : 'transfer';
+        }
+
         $kode = match (strtolower((string) $metode)) {
             'cash', 'tunai'                 => 'KAS001',
             'transfer', 'va', 'bank'        => 'BNK001',

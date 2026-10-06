@@ -7,7 +7,7 @@ use App\Models\PaymentSetting;
 use App\Models\TopUpRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TopUpController extends Controller
 {
@@ -55,10 +55,14 @@ class TopUpController extends Controller
         }
 
         $gateway     = $setting->active_gateway ?? 'tripay';
-        $merchantRef = 'TOPUP-' . time() . '-' . $request->santri_id;
+        $merchantRef = 'TOPUP-' . Str::ulid();
 
         if ($gateway === 'midtrans') {
             return $this->storeMidtrans($request, $wali, $setting, $merchantRef);
+        }
+
+        if ($gateway !== 'tripay') {
+            return response()->json(['message' => 'Gateway pembayaran yang dipilih belum didukung.'], 503);
         }
 
         return $this->storeTripay($request, $wali, $setting, $merchantRef);

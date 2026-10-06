@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-<div class="max-w-5xl mx-auto" x-data="{ activeTab: '{{ old('active_gateway', $setting->active_gateway ?? 'tripay') }}' }">
+<div class="max-w-5xl mx-auto" x-data="{ activeTab: '{{ old('active_gateway', in_array($setting->active_gateway ?? null, ['tripay', 'midtrans'], true) ? $setting->active_gateway : 'tripay') }}' }">
     <div class="glass-panel rounded-2xl overflow-hidden shadow-sm">
         
         <div class="px-6 py-5 border-b border-gray-200/50 bg-white/50">
@@ -68,16 +68,16 @@
                         </label>
 
                         <!-- Xendit -->
-                        <label class="relative cursor-pointer">
-                            <input type="radio" name="active_gateway" value="xendit" x-model="activeTab" class="peer sr-only">
+                        <label class="relative cursor-not-allowed opacity-60">
+                            <input type="radio" value="xendit" class="peer sr-only" disabled>
                             <div class="p-5 border-2 rounded-xl transition-all"
                                  :class="activeTab === 'xendit' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-white hover:border-indigo-300'">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center text-sky-600 font-bold text-xl">X</div>
                                         <div>
-                                            <h5 class="font-bold text-gray-800">Xendit</h5>
-                                            <p class="text-xs text-gray-500">Retail Outlet & E-Wallet</p>
+                                            <h5 class="font-bold text-gray-800">Xendit <span class="text-[10px] text-amber-600">SEGERA</span></h5>
+                                            <p class="text-xs text-gray-500">Belum dapat diaktifkan</p>
                                         </div>
                                     </div>
                                     <div x-show="activeTab === 'xendit'" class="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm shadow-md">

@@ -122,20 +122,19 @@
                             </p>
                             @endif
 
-                            @if($tagihan->payment_status === 'pending' && $tagihan->payment_url)
+                            @if($tagihan->payment_status === 'pending')
                                 <div class="flex flex-wrap gap-2 mt-2">
+                                    @if($tagihan->payment_url)
                                     <a href="{{ $tagihan->payment_url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm">
                                         <i class="fa-solid fa-external-link text-[8px]"></i> Lanjutkan Pembayaran
                                     </a>
-                                    @php
-                                        $pId = \App\Models\Pembayaran::where('status', 'pending')
-                                            ->where(function($q) use ($tagihan) {
-                                                $q->where('tagihan_id', $tagihan->id)
-                                                  ->orWhereJsonContains('tagihan_ids', $tagihan->id);
-                                            })->value('id');
-                                    @endphp
-                                    @if($pId)
-                                    <form action="{{ route('admin.pembayaran.cancel', $pId) }}" method="POST" onsubmit="return confirm('Batalkan transaksi ini dan pilih ulang tagihan?')">
+                                    @else
+                                    <a href="{{ route('wali.tagihan.show', $tagihan) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-[10px] font-bold transition-all">
+                                        <i class="fa-solid fa-eye text-[8px]"></i> Lihat Status
+                                    </a>
+                                    @endif
+                                    @if($tagihan->pending_payment_id)
+                                    <form action="{{ route('wali.tagihan.payment.cancel', $tagihan->pending_payment_id) }}" method="POST" onsubmit="return confirm('Batalkan transaksi ini dan pilih ulang tagihan?')">
                                         @csrf
                                         <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-[10px] font-bold transition-all">
                                             <i class="fa-solid fa-trash-can text-[8px]"></i> Batalkan & Pilih Ulang
@@ -143,6 +142,12 @@
                                     </form>
                                     @endif
                                 </div>
+                            @endif
+                            @if($tagihan->payment_status !== 'pending')
+                                <a href="{{ route('wali.tagihan.pay', $tagihan) }}" onclick="event.stopPropagation()"
+                                   class="inline-flex items-center gap-1.5 px-3 py-1 mt-2 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-[10px] font-bold transition-all">
+                                    <i class="fa-solid fa-receipt"></i> Upload Bukti Transfer
+                                </a>
                             @endif
                         </div>
                         <div class="text-right shrink-0">

@@ -36,7 +36,7 @@ class MarketplaceController extends Controller
         $request->validate([
             "santri_id" => "required|exists:santri,id",
             "items" => "required|array|min:1",
-            "items.*.produk_id" => "required|exists:produk,id",
+            "items.*.produk_id" => "required|distinct|exists:produk,id",
             "items.*.qty" => "required|integer|min:1",
         ]);
 
@@ -62,7 +62,10 @@ class MarketplaceController extends Controller
             $orderItems = [];
 
             foreach ($request->items as $item) {
-                $produk = Produk::findOrFail($item["produk_id"]);
+                $produk = Produk::query()
+                    ->whereKey($item["produk_id"])
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
                 $produk->loadMissing("outlet");
 

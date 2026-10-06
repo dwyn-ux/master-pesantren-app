@@ -41,14 +41,15 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.pembayaran.store') }}">
+        <form method="POST" action="{{ route('admin.pembayaran.store') }}" enctype="multipart/form-data"
+              x-data="{ metode: @js(old('metode', 'manual_cash')) }">
             @csrf
             <input type="hidden" name="tagihan_id" value="{{ $tagihan->id }}">
 
             <div class="mb-6">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Pilih Metode Pembayaran</label>
                 <div class="relative">
-                    <select name="metode" class="w-full pl-11 pr-4 py-3 rounded-xl border {{ $errors->has('metode') ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-500' }} outline-none transition-all bg-white appearance-none" required>
+                    <select name="metode" x-model="metode" class="w-full pl-11 pr-4 py-3 rounded-xl border {{ $errors->has('metode') ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-gray-200 focus:ring-indigo-500/20 focus:border-indigo-500' }} outline-none transition-all bg-white appearance-none" required>
                         @foreach($metodeOptions as $key => $label)
                             <option value="{{ $key }}" @selected(old('metode') === $key)>{{ $label }}</option>
                         @endforeach
@@ -62,8 +63,22 @@
                 <div class="mt-3 bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex gap-3 text-blue-800">
                     <i class="fa-solid fa-circle-info text-blue-500 text-lg mt-0.5"></i>
                     <p class="text-sm leading-relaxed">
-                        Jika memilih <strong>Manual Kasir</strong>, tagihan akan langsung ditandai Lunas. Jika memilih metode online (VA/QRIS/E-Wallet), pembayaran butuh diproses via sistem Tripay oleh wali.
+                        Tunai dan transfer yang dicatat admin langsung melunasi tagihan. Untuk transfer, bukti wajib dilampirkan dan tersimpan privat sebagai arsip.
                     </p>
+                </div>
+            </div>
+
+            <div x-show="metode === 'manual_transfer'" x-transition class="mb-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Transfer</label>
+                    <input type="file" name="proof" accept=".jpg,.jpeg,.png,.pdf"
+                           :required="metode === 'manual_transfer'"
+                           class="block w-full text-sm text-gray-600 border border-gray-200 rounded-xl bg-white file:mr-4 file:py-3 file:px-4 file:border-0 file:bg-indigo-50 file:text-indigo-700 file:font-semibold">
+                    @error('proof')<div class="text-red-500 text-sm mt-1">{{ $message }}</div>@enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan (opsional)</label>
+                    <textarea name="manual_note" rows="3" maxlength="500" class="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500">{{ old('manual_note') }}</textarea>
                 </div>
             </div>
 

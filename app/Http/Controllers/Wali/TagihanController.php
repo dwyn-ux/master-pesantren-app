@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Wali;
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\PaymentSetting;
+use App\Models\Santri;
 use App\Models\Tagihan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TagihanController extends Controller
 {
@@ -24,9 +27,10 @@ class TagihanController extends Controller
             ->where('status', 'belum_bayar')
             ->orderBy('due_date')
             ->get()
-            ->map(function($t) {
+            ->map(function ($t) use ($wali) {
                 // Cek apakah ada pembayaran pending untuk tagihan ini (baik single maupun batch)
                 $pPending = Pembayaran::where('status', 'pending')
+                    ->where('wali_id', $wali->id)
                     ->where(function($q) use ($t) {
                         $q->where('tagihan_id', $t->id)
                           ->orWhereJsonContains('tagihan_ids', $t->id);
@@ -34,6 +38,7 @@ class TagihanController extends Controller
                 
                 $t->payment_status = $pPending ? 'pending' : null;
                 $t->payment_url = $pPending ? $pPending->payment_url : null;
+                $t->pending_payment_id = $pPending?->id;
                 return $t;
             });
 
@@ -96,10 +101,14 @@ class TagihanController extends Controller
 
         $gateway = $setting->active_gateway ?? 'tripay';
 
-        $merchantRef = 'BATCH-' . time() . '-' . auth()->id();
+        $merchantRef = 'BATCH-' . Str::ulid();
 
         if ($gateway === 'midtrans') {
             return $this->checkoutMidtrans($wali, $tagihans, $topupItems, $totalNominal, $merchantRef, $setting);
+        }
+
+        if ($gateway !== 'tripay') {
+            return response()->json(['message' => 'Gateway pembayaran yang dipilih belum didukung.'], 503);
         }
 
         // Default: Tripay QRIS
@@ -109,17 +118,117 @@ class TagihanController extends Controller
     public function show(Tagihan $tagihan)
     {
         $wali = auth()->user()->wali;
-        if (!$wali) abort(403);
+        $this->authorizeTagihan($tagihan, $wali?->id);
 
-        if (!$tagihan->santri->wali()->where('wali.id', $wali->id)->exists()) {
+        $tagihan->load(['santri', 'jenisTagihan']);
+
+        $pembayaran = Pembayaran::query()
+            ->where('wali_id', $wali->id)
+            ->where(function ($query) use ($tagihan) {
+                $query->where('tagihan_id', $tagihan->id)
+                    ->orWhereJsonContains('tagihan_ids', $tagihan->id);
+            })
+            ->latest()
+            ->first();
+
+        return view('wali.tagihan.show', compact('tagihan', 'pembayaran'));
+    }
+
+    public function pay(Tagihan $tagihan)
+    {
+        $wali = auth()->user()->wali;
+        $this->authorizeTagihan($tagihan, $wali?->id);
+
+        if ($tagihan->status === 'lunas') {
+            return redirect()->route('wali.tagihan.show', $tagihan)
+                ->with('error', 'Tagihan ini sudah lunas.');
+        }
+
+        $pending = $this->pendingPaymentFor($tagihan, $wali->id);
+
+        if ($pending) {
+            return redirect()->route('wali.tagihan.show', $tagihan)
+                ->with('error', 'Tagihan ini masih memiliki pembayaran yang menunggu proses.');
+        }
+
+        return view('wali.tagihan.pay', compact('tagihan'));
+    }
+
+    public function processPayment(Request $request, Tagihan $tagihan)
+    {
+        $wali = auth()->user()->wali;
+        $this->authorizeTagihan($tagihan, $wali?->id);
+
+        $request->validate([
+            'metode' => 'required|in:manual_transfer',
+            'proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'manual_note' => 'nullable|string|max:500',
+        ]);
+
+        if ($tagihan->status === 'lunas') {
+            return back()->with('error', 'Tagihan ini sudah lunas.');
+        }
+
+        if ($this->pendingPaymentFor($tagihan, $wali->id)) {
+            return back()->with('error', 'Masih ada pembayaran yang menunggu proses untuk tagihan ini.');
+        }
+
+        $proofPath = $request->file('proof')->store('payment-proofs', 'local');
+
+        try {
+            $payment = Pembayaran::create([
+                'tagihan_id' => $tagihan->id,
+                'wali_id' => $wali->id,
+                'nominal' => $tagihan->nominal,
+                'metode' => 'manual',
+                'manual_type' => 'transfer',
+                'tripay_ref' => 'MANUAL-' . Str::ulid(),
+                'proof_path' => $proofPath,
+                'proof_original_name' => $request->file('proof')->getClientOriginalName(),
+                'submitted_at' => now(),
+                'manual_note' => $request->manual_note,
+                'status' => 'pending',
+            ]);
+        } catch (\Throwable $e) {
+            Storage::disk('local')->delete($proofPath);
+            throw $e;
+        }
+
+        return redirect()->route('wali.tagihan.show', $tagihan)
+            ->with('success', 'Bukti transfer berhasil dikirim dan menunggu konfirmasi admin.');
+    }
+
+    public function cancelPayment(Pembayaran $pembayaran)
+    {
+        $wali = auth()->user()->wali;
+
+        if (! $wali || (int) $pembayaran->wali_id !== (int) $wali->id) {
             abort(403);
         }
 
-        $tagihan->load(['santri', 'jenisTagihan', 'pembayaran' => fn($q) => $q->latest()]);
+        if ($pembayaran->status !== 'pending') {
+            return back()->with('error', 'Hanya pembayaran yang masih menunggu yang dapat dibatalkan.');
+        }
 
-        $pembayaran = $tagihan->pembayaran->first();
+        $pembayaran->update(['status' => 'failed']);
 
-        return view('wali.tagihan.show', compact('tagihan', 'pembayaran'));
+        return back()->with('success', 'Pembayaran dibatalkan. Anda dapat memilih metode lain.');
+    }
+
+    public function proof(Pembayaran $pembayaran)
+    {
+        $wali = auth()->user()->wali;
+
+        if (! $wali || (int) $pembayaran->wali_id !== (int) $wali->id) {
+            abort(403);
+        }
+
+        abort_unless($pembayaran->proof_path && Storage::disk('local')->exists($pembayaran->proof_path), 404);
+
+        return Storage::disk('local')->download(
+            $pembayaran->proof_path,
+            $pembayaran->proof_original_name ?: basename($pembayaran->proof_path),
+        );
     }
 
     // ──────────────────────────────────────────────
@@ -349,5 +458,30 @@ class TagihanController extends Controller
         return filled($setting->tripay_api_key)
             && filled($setting->tripay_private_key)
             && filled($setting->tripay_merchant_code);
+    }
+
+    private function authorizeTagihan(Tagihan $tagihan, ?int $waliId): void
+    {
+        $authorized = $waliId && Santri::query()
+            ->whereKey($tagihan->santri_id)
+            ->whereHas('wali', fn ($query) => $query->whereKey($waliId))
+            ->exists();
+
+        if (! $authorized) {
+            abort(403);
+        }
+    }
+
+    private function pendingPaymentFor(Tagihan $tagihan, int $waliId): ?Pembayaran
+    {
+        return Pembayaran::query()
+            ->where('wali_id', $waliId)
+            ->where('status', 'pending')
+            ->where(function ($query) use ($tagihan) {
+                $query->where('tagihan_id', $tagihan->id)
+                    ->orWhereJsonContains('tagihan_ids', $tagihan->id);
+            })
+            ->latest()
+            ->first();
     }
 }

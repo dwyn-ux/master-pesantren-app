@@ -22,7 +22,7 @@ class JadwalPelajaranController extends Controller
             $jadwal = JadwalPelajaran::where('tahun_ajaran_id', $request->tahun_ajaran_id)
                 ->where('kelas_id', $request->kelas_id)
                 ->with(['mataPelajaran', 'ustadz.user'])
-                ->orderByRaw("FIELD(hari, 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu')")
+                ->orderByRaw("CASE hari WHEN 'senin' THEN 1 WHEN 'selasa' THEN 2 WHEN 'rabu' THEN 3 WHEN 'kamis' THEN 4 WHEN 'jumat' THEN 5 WHEN 'sabtu' THEN 6 WHEN 'minggu' THEN 7 ELSE 8 END")
                 ->orderBy('jam_mulai')
                 ->get();
         }

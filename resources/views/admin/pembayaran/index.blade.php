@@ -75,7 +75,8 @@
                         @php
                             $metodeLabel = [
                                 'va_bca' => 'VA BCA', 'va_mandiri' => 'VA Mandiri',
-                                'qris' => 'QRIS', 'gopay' => 'Gopay', 'ovo' => 'OVO', 'manual' => 'Manual Kasir'
+                                'qris' => 'QRIS', 'gopay' => 'Gopay', 'ovo' => 'OVO',
+                                'manual' => $item->manual_type === 'cash' ? 'Tunai / Cash' : 'Transfer Manual'
                             ][$item->metode] ?? $item->metode;
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
@@ -94,6 +95,9 @@
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border {{ $badgeClass }}">
                             {{ strtoupper($item->status) }}
+                            @if($item->isManualTransfer() && $item->status === 'pending')
+                                · VERIFIKASI BUKTI
+                            @endif
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right">

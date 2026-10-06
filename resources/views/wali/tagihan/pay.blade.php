@@ -49,43 +49,33 @@
     </div>
     @endif
 
-    {{-- Payment Method --}}
-    <form action="{{ route('wali.tagihan.pay.process', $tagihan) }}" method="POST">
+    {{-- Manual bank transfer --}}
+    <form action="{{ route('wali.tagihan.pay.process', $tagihan) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="metode" value="manual_transfer">
         <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 bg-white/50">
-                <h5 class="font-bold text-gray-800"><i class="fa-solid fa-credit-card text-indigo-500 mr-2"></i>Pilih Metode Pembayaran</h5>
+                <h5 class="font-bold text-gray-800"><i class="fa-solid fa-building-columns text-indigo-500 mr-2"></i>Konfirmasi Transfer Manual</h5>
             </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    @foreach($metodeOptions as $value => $label)
-                    <label class="relative cursor-pointer">
-                        <input type="radio" name="metode" value="{{ $value }}" class="peer sr-only" {{ old('metode') === $value ? 'checked' : ($loop->first ? 'checked' : '') }}>
-                        <div class="flex items-center gap-3 p-4 border-2 rounded-xl transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-50 border-gray-200 hover:border-indigo-300">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
-                                {{ in_array($value, ['va_bca', 'va_mandiri']) ? 'bg-blue-100 text-blue-600' :
-                                   ($value === 'qris' ? 'bg-gray-100 text-gray-700' :
-                                   ($value === 'gopay' ? 'bg-green-100 text-green-600' : 'bg-purple-100 text-purple-600')) }}">
-                                @if(in_array($value, ['va_bca', 'va_mandiri']))
-                                    <i class="fa-solid fa-building-columns"></i>
-                                @elseif($value === 'qris')
-                                    <i class="fa-solid fa-qrcode"></i>
-                                @else
-                                    <i class="fa-solid fa-mobile-screen-button"></i>
-                                @endif
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 peer-checked:text-indigo-700">{{ $label }}</span>
-                            <div class="ml-auto w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-indigo-500 peer-checked:bg-indigo-500 flex items-center justify-center transition-all">
-                                <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
-                            </div>
-                        </div>
-                    </label>
-                    @endforeach
+            <div class="p-6 space-y-5">
+                <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-sm text-blue-800 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info mt-0.5"></i>
+                    <span>Upload foto atau PDF bukti transfer. Tagihan akan lunas setelah admin memeriksa dan mengonfirmasi bukti tersebut. Pembayaran online otomatis tetap tersedia dari halaman daftar tagihan.</span>
                 </div>
 
-                <div class="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700 flex items-start gap-3">
-                    <i class="fa-solid fa-circle-info mt-0.5 flex-shrink-0"></i>
-                    <span>Anda akan diarahkan ke halaman pembayaran Tripay. Setelah pembayaran berhasil, status tagihan akan diperbarui secara otomatis.</span>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Transfer</label>
+                    <input type="file" name="proof" accept=".jpg,.jpeg,.png,.pdf" required
+                           class="block w-full text-sm text-gray-600 border border-gray-200 rounded-xl bg-white file:mr-4 file:py-3 file:px-4 file:border-0 file:bg-indigo-50 file:text-indigo-700 file:font-semibold">
+                    <p class="text-xs text-gray-500 mt-1">Format JPG, PNG, atau PDF. Maksimal 5 MB.</p>
+                    @error('proof')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan untuk Admin (opsional)</label>
+                    <textarea name="manual_note" rows="3" maxlength="500" placeholder="Contoh: transfer dari rekening atas nama ..."
+                              class="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500">{{ old('manual_note') }}</textarea>
+                    @error('manual_note')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
 
@@ -94,8 +84,8 @@
                     <i class="fa-solid fa-arrow-left text-xs"></i> Kembali
                 </a>
                 <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-colors shadow-sm">
-                    <i class="fa-solid fa-lock text-xs"></i>
-                    Lanjutkan Pembayaran &rarr;
+                    <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                    Kirim Bukti Transfer
                 </button>
             </div>
         </div>

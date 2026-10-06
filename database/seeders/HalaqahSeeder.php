@@ -103,7 +103,7 @@ class HalaqahSeeder extends Seeder
                 'tanggal' => now()->subDays(7 - $position)->toDateString(),
             ],
             [
-                'jenis' => 'muraja_ah',
+                'jenis' => 'murojaah',
                 'surah_awal' => 112,
                 'ayat_awal' => 1,
                 'surah_akhir' => 114,

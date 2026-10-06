@@ -39,7 +39,8 @@
 
             $metodeLabel = [
                 'va_bca' => 'Virtual Account BCA', 'va_mandiri' => 'Virtual Account Mandiri',
-                'qris' => 'QRIS Payment', 'gopay' => 'Gopay', 'ovo' => 'OVO', 'manual' => 'Pembayaran Manual Kasir'
+                'qris' => 'QRIS Payment', 'gopay' => 'Gopay', 'ovo' => 'OVO',
+                'manual' => $pembayaran->manual_type === 'cash' ? 'Tunai / Cash' : 'Transfer Manual'
             ][$pembayaran->metode] ?? $pembayaran->metode;
         @endphp
 
@@ -119,9 +120,51 @@
                 <div class="text-sm text-gray-800"><span class="font-medium">Dibuat:</span> {{ $pembayaran->created_at->format('d/m/Y H:i:s') }}</div>
                 <div class="text-sm text-gray-800"><span class="font-medium">Selesai:</span> {{ $pembayaran->paid_at?->format('d/m/Y H:i:s') ?? '-' }}</div>
             </div>
+            @if($pembayaran->metode === 'manual')
+            <div class="p-4 bg-sky-50/60 rounded-xl border border-sky-100 space-y-2">
+                <div class="text-xs font-bold text-sky-600 uppercase tracking-wider">Verifikasi Manual</div>
+                <div class="text-sm text-gray-700">Diajukan: {{ $pembayaran->submitted_at?->format('d/m/Y H:i:s') ?? '-' }}</div>
+                <div class="text-sm text-gray-700">Dikonfirmasi: {{ $pembayaran->confirmed_at?->format('d/m/Y H:i:s') ?? '-' }}</div>
+                @if($pembayaran->confirmer)
+                    <div class="text-sm text-gray-700">Oleh: {{ $pembayaran->confirmer->name }}</div>
+                @endif
+                @if($pembayaran->proof_path)
+                    <a href="{{ route('admin.pembayaran.proof', $pembayaran) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                        <i class="fa-solid fa-paperclip"></i> Lihat bukti transfer
+                    </a>
+                @endif
+                @if($pembayaran->manual_note)
+                    <p class="text-sm text-gray-600">Catatan: {{ $pembayaran->manual_note }}</p>
+                @endif
+                @if($pembayaran->rejection_note)
+                    <p class="text-sm text-red-700">Alasan ditolak: {{ $pembayaran->rejection_note }}</p>
+                @endif
+            </div>
+            @endif
         </div>
 
-        @if($pembayaran->status === 'pending' && $pembayaran->tripay_ref)
+        @if($pembayaran->isManualTransfer() && $pembayaran->status === 'pending')
+            <div class="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form method="POST" action="{{ route('admin.pembayaran.confirm-manual', $pembayaran) }}" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 space-y-3">
+                    @csrf
+                    <label class="block text-sm font-semibold text-emerald-800">Konfirmasi transfer</label>
+                    <textarea name="manual_note" rows="2" maxlength="500" placeholder="Catatan verifikasi (opsional)" class="w-full rounded-lg border-emerald-200"></textarea>
+                    <button class="w-full px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold" onclick="return confirm('Bukti sudah sesuai dan nominal sudah masuk?')">
+                        <i class="fa-solid fa-check mr-1"></i> Konfirmasi & Lunasi
+                    </button>
+                </form>
+                <form method="POST" action="{{ route('admin.pembayaran.reject-manual', $pembayaran) }}" class="p-4 rounded-xl border border-red-200 bg-red-50 space-y-3">
+                    @csrf
+                    <label class="block text-sm font-semibold text-red-800">Tolak bukti</label>
+                    <textarea name="rejection_note" rows="2" maxlength="500" required placeholder="Alasan penolakan" class="w-full rounded-lg border-red-200"></textarea>
+                    <button class="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold" onclick="return confirm('Tolak bukti transfer ini?')">
+                        <i class="fa-solid fa-xmark mr-1"></i> Tolak Bukti
+                    </button>
+                </form>
+            </div>
+        @endif
+
+        @if($pembayaran->status === 'pending' && $pembayaran->tripay_ref && $pembayaran->metode !== 'manual')
             <div class="mt-8 pt-6 border-t border-gray-100 flex justify-center">
                 <form method="POST" action="{{ route('admin.pembayaran.check-status', $pembayaran) }}">
                     @csrf
