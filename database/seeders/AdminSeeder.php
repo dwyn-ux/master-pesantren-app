@@ -18,33 +18,39 @@ class AdminSeeder extends Seeder
             ['username' => 'kepalapondok',  'name' => 'Kepala Pondok',   'role' => 'kepala_pondok'],
         ];
 
-        $lines = ["=== Kredensial Staff (generated: " . now() . ") ===\n"];
+        $lines = [];
 
         foreach ($accounts as $item) {
-            $password = Str::random(16);
+            $user = User::where('username', $item['username'])->first();
 
-            $user = User::firstOrCreate(
-                ['username' => $item['username']],
-                [
+            if (! $user) {
+                $password = Str::random(16);
+                $user = User::create([
+                    'username'       => $item['username'],
                     'name'           => $item['name'],
                     'password'       => Hash::make($password),
                     'must_change_pw' => true,
                     'is_active'      => true,
-                ]
-            );
+                ]);
+
+                $lines[] = "[{$item['role']}] username: {$item['username']} | password: {$password}";
+            }
 
             $user->assignRole($item['role']);
 
-            $line = "[{$item['role']}] username: {$item['username']} | password: {$password}";
-            $lines[] = $line;
-            $this->command->info($line);
         }
 
-        Storage::disk('local')->put(
-            'credentials-staff.txt',
-            implode("\n", $lines) . "\n"
-        );
+        if ($lines) {
+            Storage::disk('local')->put(
+                'credentials-staff.txt',
+                "=== Kredensial Staff (generated: " . now() . ") ===\n" . implode("\n", $lines) . "\n"
+            );
 
-        $this->command->warn('Kredensial disimpan di: storage/app/private/credentials-staff.txt');
+            $this->command->warn('Kredensial staff baru disimpan di: storage/app/private/credentials-staff.txt');
+
+            return;
+        }
+
+        $this->command->info('Akun staff sudah ada; password dan file kredensial tidak diubah.');
     }
 }
