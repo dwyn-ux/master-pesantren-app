@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Pembayaran')
 @section('page-title', 'Kelola Pembayaran')
-@php($paymentRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.pembayaran' : 'admin.pembayaran')
+@php
+    $paymentRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.pembayaran' : 'admin.pembayaran';
+@endphp
 
 @section('sidebar')
     @if($paymentRoute === 'bendahara.pembayaran')

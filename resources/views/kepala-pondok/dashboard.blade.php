@@ -54,7 +54,9 @@
         <section class="glass-panel overflow-hidden rounded-2xl">
             <div class="flex items-center justify-between p-5 border-b border-gray-100">
                 <div><h3 class="font-extrabold text-gray-800">Setoran terbaru</h3><p class="text-xs text-gray-500 mt-0.5">Aktivitas halaqah terakhir</p></div>
-                @feature('halaqah')<a href="{{ route('kepala-pondok.halaqah') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-800">Lihat semua</a>@endfeature
+                @feature('halaqah')
+                    <a href="{{ route('kepala-pondok.halaqah') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-800">Lihat semua</a>
+                @endfeature
             </div>
             <div class="divide-y divide-gray-100">
                 @forelse($setoranTerbaru as $setoran)
