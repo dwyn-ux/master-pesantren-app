@@ -1,20 +1,25 @@
 @extends('layouts.app')
 @section('title', 'Detail Pembayaran')
 @section('page-title', 'Detail Pembayaran')
+@php($paymentRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.pembayaran' : 'admin.pembayaran')
 
 @section('sidebar')
+    @if($paymentRoute === 'bendahara.pembayaran')
+        @include('partials.sidebar-bendahara')
+    @else
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 mx-4 mt-6 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-gauge-high w-5 text-center"></i>
         <span class="font-medium text-sm">Dashboard</span>
     </a>
     @include('partials.sidebar-admin')
+    @endif
 @endsection
 
 @section('content')
 <div class="glass-panel rounded-2xl shadow-sm overflow-hidden max-w-3xl mx-auto">
     <div class="border-b border-gray-100 bg-white/50 px-6 py-4 flex items-center justify-between">
         <h6 class="text-lg font-bold text-gray-800">Transaksi #{{ $pembayaran->id }}</h6>
-        <a href="{{ route('admin.pembayaran.index') }}" class="px-4 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
+        <a href="{{ route($paymentRoute) }}" class="px-4 py-1.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors">
             Kembali
         </a>
     </div>
@@ -129,7 +134,7 @@
                     <div class="text-sm text-gray-700">Oleh: {{ $pembayaran->confirmer->name }}</div>
                 @endif
                 @if($pembayaran->proof_path)
-                    <a href="{{ route('admin.pembayaran.proof', $pembayaran) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                    <a href="{{ route($paymentRoute . '.proof', $pembayaran) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
                         <i class="fa-solid fa-paperclip"></i> Lihat bukti transfer
                     </a>
                 @endif
@@ -145,7 +150,7 @@
 
         @if($pembayaran->isManualTransfer() && $pembayaran->status === 'pending')
             <div class="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <form method="POST" action="{{ route('admin.pembayaran.confirm-manual', $pembayaran) }}" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 space-y-3">
+                <form method="POST" action="{{ route($paymentRoute . '.confirm-manual', $pembayaran) }}" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 space-y-3">
                     @csrf
                     <label class="block text-sm font-semibold text-emerald-800">Konfirmasi transfer</label>
                     <textarea name="manual_note" rows="2" maxlength="500" placeholder="Catatan verifikasi (opsional)" class="w-full rounded-lg border-emerald-200"></textarea>
@@ -153,7 +158,7 @@
                         <i class="fa-solid fa-check mr-1"></i> Konfirmasi & Lunasi
                     </button>
                 </form>
-                <form method="POST" action="{{ route('admin.pembayaran.reject-manual', $pembayaran) }}" class="p-4 rounded-xl border border-red-200 bg-red-50 space-y-3">
+                <form method="POST" action="{{ route($paymentRoute . '.reject-manual', $pembayaran) }}" class="p-4 rounded-xl border border-red-200 bg-red-50 space-y-3">
                     @csrf
                     <label class="block text-sm font-semibold text-red-800">Tolak bukti</label>
                     <textarea name="rejection_note" rows="2" maxlength="500" required placeholder="Alasan penolakan" class="w-full rounded-lg border-red-200"></textarea>
@@ -166,7 +171,7 @@
 
         @if($pembayaran->status === 'pending' && $pembayaran->tripay_ref && $pembayaran->metode !== 'manual')
             <div class="mt-8 pt-6 border-t border-gray-100 flex justify-center">
-                <form method="POST" action="{{ route('admin.pembayaran.check-status', $pembayaran) }}">
+                <form method="POST" action="{{ route($paymentRoute . '.check-status', $pembayaran) }}">
                     @csrf
                     <button class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> Sinkronisasi Status Gateway

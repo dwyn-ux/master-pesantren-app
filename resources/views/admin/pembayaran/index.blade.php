@@ -1,13 +1,18 @@
 @extends('layouts.app')
 @section('title', 'Pembayaran')
 @section('page-title', 'Kelola Pembayaran')
+@php($paymentRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.pembayaran' : 'admin.pembayaran')
 
 @section('sidebar')
+    @if($paymentRoute === 'bendahara.pembayaran')
+        @include('partials.sidebar-bendahara')
+    @else
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 mx-4 mt-6 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-gauge-high w-5 text-center"></i>
         <span class="font-medium text-sm">Dashboard</span>
     </a>
     @include('partials.sidebar-admin')
+    @endif
 @endsection
 
 @section('content')
@@ -44,7 +49,7 @@
                 <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm">
                     Filter
                 </button>
-                <a href="{{ route('admin.pembayaran.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors">
+                <a href="{{ route($paymentRoute) }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors">
                     Reset
                 </a>
             </div>
@@ -102,17 +107,17 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <a href="{{ route('admin.pembayaran.show', $item) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors" title="Lihat Detail">
+                            <a href="{{ route($paymentRoute . '.show', $item) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors" title="Lihat Detail">
                                 <i class="fa-solid fa-eye text-sm"></i>
                             </a>
-                            @if($item->status === 'pending' && $item->tripay_ref)
-                            <form method="POST" action="{{ route('admin.pembayaran.check-status', $item) }}" class="inline-block">
+                            @if($item->status === 'pending' && $item->tripay_ref && $item->metode !== 'manual')
+                            <form method="POST" action="{{ route($paymentRoute . '.check-status', $item) }}" class="inline-block">
                                 @csrf
                                 <button type="submit" class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center transition-colors" title="Cek status pembayaran">
                                     <i class="fa-solid fa-rotate-right text-sm"></i>
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.pembayaran.cancel', $item) }}" class="inline-block" onsubmit="return confirm('Batalkan transaksi ini? Tagihan terkait akan bisa dipilih kembali.')">
+                            <form method="POST" action="{{ route($paymentRoute . '.cancel', $item) }}" class="inline-block" onsubmit="return confirm('Batalkan transaksi ini? Tagihan terkait akan bisa dipilih kembali.')">
                                 @csrf
                                 <button type="submit" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Batalkan Transaksi">
                                     <i class="fa-solid fa-xmark text-sm"></i>
