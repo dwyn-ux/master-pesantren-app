@@ -12,19 +12,21 @@
 <div class="px-4 py-2 mt-2">
     <p class="text-xs font-bold text-indigo-200/70 uppercase tracking-wider mb-2">Monitoring</p>
     <div class="space-y-1">
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-indigo-100 hover:bg-white/10">
+        <a href="{{ route('kepala-pondok.laporan') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('kepala-pondok.laporan') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
             <i class="fa-solid fa-chart-column w-5 text-center"></i>
             <span class="font-medium text-sm">Laporan</span>
         </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-indigo-100 hover:bg-white/10">
+        <a href="{{ route('kepala-pondok.santri') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('kepala-pondok.santri') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
             <i class="fa-solid fa-user-graduate w-5 text-center"></i>
             <span class="font-medium text-sm">Data Santri</span>
         </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-indigo-100 hover:bg-white/10">
-            <i class="fa-solid fa-book-quran w-5 text-center"></i>
-            <span class="font-medium text-sm">Halaqah</span>
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-indigo-100 hover:bg-white/10">
+        @feature('halaqah')
+            <a href="{{ route('kepala-pondok.halaqah') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('kepala-pondok.halaqah') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
+                <i class="fa-solid fa-book-quran w-5 text-center"></i>
+                <span class="font-medium text-sm">Halaqah</span>
+            </a>
+        @endfeature
+        <a href="{{ route('kepala-pondok.keuangan') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all {{ request()->routeIs('kepala-pondok.keuangan') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
             <i class="fa-solid fa-money-bill-trend-up w-5 text-center"></i>
             <span class="font-medium text-sm">Keuangan</span>
         </a>

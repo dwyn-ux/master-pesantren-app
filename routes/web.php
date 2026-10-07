@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Bendahara\DashboardController as BendaharaDashboardController;
 use App\Http\Controllers\Bendahara\LimitUangSakuController as BendaharaLimitUangSakuController;
+use App\Http\Controllers\KepalaPondok\MonitoringController as KepalaPondokMonitoringController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Kesantrian\PerizinanController as KesantrianPerizinanController;
 use App\Http\Controllers\Outlet\KasirKantinController;
@@ -426,10 +427,11 @@ Route::middleware(["auth", "must.change.pw", "role:kepala_pondok|admin"])
     ->prefix("kepala-pondok")
     ->name("kepala-pondok.")
     ->group(function () {
-        Route::get("/dashboard", [
-            DashboardController::class,
-            "kepalapondok",
-        ])->name("dashboard");
+        Route::get("/dashboard", [KepalaPondokMonitoringController::class, "dashboard"])->name("dashboard");
+        Route::get("/laporan", [KepalaPondokMonitoringController::class, "laporan"])->name("laporan");
+        Route::get("/santri", [KepalaPondokMonitoringController::class, "santri"])->name("santri");
+        Route::get("/halaqah", [KepalaPondokMonitoringController::class, "halaqah"])->name("halaqah")->middleware("feature:halaqah");
+        Route::get("/keuangan", [KepalaPondokMonitoringController::class, "keuangan"])->name("keuangan");
     });
 
 // ── Ustadz ────────────────────────────────────────────────────────────────────
