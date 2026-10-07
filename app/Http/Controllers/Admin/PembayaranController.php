@@ -97,7 +97,7 @@ class PembayaranController extends Controller
 
         if (!$wali) {
             return redirect()
-                ->route("admin.tagihan.index")
+                ->route($this->tagihanRouteName())
                 ->with(
                     "error",
                     "Tagihan belum punya wali terkait. Hubungkan santri dengan wali terlebih dahulu.",
@@ -184,7 +184,7 @@ class PembayaranController extends Controller
             }
 
             return redirect()
-                ->route("admin.pembayaran.show", $pembayaran)
+                ->route($this->paymentRouteName() . ".show", $pembayaran)
                 ->with("success", "Pembayaran manual berhasil dicatat dan tagihan sudah lunas.");
         }
 
@@ -471,7 +471,7 @@ class PembayaranController extends Controller
                     "quantity" => 1,
                 ],
             ],
-            "return_url" => route("admin.pembayaran.show", $pembayaran),
+            "return_url" => route($this->paymentRouteName() . ".show", $pembayaran),
             "callback_url" => route("api.tripay-callback"),
             "expired_time" => now()->addDay()->timestamp,
             "signature" => $signature,
@@ -508,7 +508,7 @@ class PembayaranController extends Controller
                     "payment_url" =>
                         $result["data"]["checkout_url"] ??
                         ($result["data"]["pay_url"] ??
-                            route("admin.pembayaran.show", $pembayaran)),
+                            route($this->paymentRouteName() . ".show", $pembayaran)),
                 ];
             }
 
@@ -682,5 +682,19 @@ class PembayaranController extends Controller
             "ovo" => "OVO",
             default => "BCAVA",
         };
+    }
+
+    private function paymentRouteName(): string
+    {
+        return request()->routeIs('bendahara.pembayaran*')
+            ? 'bendahara.pembayaran'
+            : 'admin.pembayaran';
+    }
+
+    private function tagihanRouteName(): string
+    {
+        return request()->routeIs('bendahara.pembayaran*')
+            ? 'bendahara.tagihan.index'
+            : 'admin.tagihan.index';
     }
 }

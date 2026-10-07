@@ -19,7 +19,7 @@
         <span class="font-medium text-sm">Daftar Pembayaran</span>
     </a>
 
-    <a href="{{ route('bendahara.tagihan') }}" class="flex items-center gap-3 px-4 py-2 mx-4 rounded-xl transition-all {{ request()->routeIs('bendahara.tagihan*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }} mt-1">
+    <a href="{{ route('bendahara.tagihan.index') }}" class="flex items-center gap-3 px-4 py-2 mx-4 rounded-xl transition-all {{ request()->routeIs('bendahara.tagihan*') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }} mt-1">
         <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
         <span class="font-medium text-sm">Daftar Tagihan</span>
     </a>

@@ -1,13 +1,20 @@
 @extends('layouts.app')
 @section('title', $tagihan ? 'Edit Tagihan' : 'Buat Tagihan')
 @section('page-title', $tagihan ? 'Edit Tagihan' : 'Buat Tagihan')
+@php
+    $tagihanRoute = request()->routeIs('bendahara.tagihan*') ? 'bendahara.tagihan' : 'admin.tagihan';
+@endphp
 
 @section('sidebar')
+    @if($tagihanRoute === 'bendahara.tagihan')
+        @include('partials.sidebar-bendahara')
+    @else
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 mx-4 mt-6 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-gauge-high w-5 text-center"></i>
         <span class="font-medium text-sm">Dashboard</span>
     </a>
     @include('partials.sidebar-admin')
+    @endif
 @endsection
 
 @section('content')
@@ -16,7 +23,7 @@
         <h6 class="text-lg font-bold text-gray-800">{{ $tagihan ? 'Edit Tagihan Santri' : 'Buat Tagihan Baru' }}</h6>
     </div>
     <div class="p-6">
-        <form method="POST" action="{{ $tagihan ? route('admin.tagihan.update', $tagihan) : route('admin.tagihan.store') }}">
+        <form method="POST" action="{{ $tagihan ? route($tagihanRoute . '.update', $tagihan) : route($tagihanRoute . '.store') }}">
             @csrf
             @if($tagihan) @method('PUT') @endif
 
@@ -157,7 +164,7 @@
             @endif
 
             <div class="flex flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-100 justify-end">
-                <a href="{{ route('admin.tagihan.index') }}" class="px-6 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center">Batal</a>
+                <a href="{{ route($tagihanRoute . '.index') }}" class="px-6 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center">Batal</a>
                 <button type="submit" class="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center justify-center gap-2">
                     <i class="fa-solid fa-check"></i> {{ $tagihan ? 'Simpan Perubahan' : 'Simpan Tagihan' }}
                 </button>

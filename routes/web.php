@@ -382,16 +382,16 @@ Route::middleware(["auth", "must.change.pw", "role:bendahara|admin"])
         ])->name("dashboard");
         Route::middleware("feature:tagihan")->group(function () {
             Route::get("pembayaran", [PembayaranController::class, "index"])->name("pembayaran");
+            Route::get("pembayaran/create", [PembayaranController::class, "create"])->name("pembayaran.create");
+            Route::post("pembayaran", [PembayaranController::class, "store"])->name("pembayaran.store");
             Route::get("pembayaran/{pembayaran}", [PembayaranController::class, "show"])->name("pembayaran.show");
             Route::post("pembayaran/{pembayaran}/check-status", [PembayaranController::class, "checkStatus"])->name("pembayaran.check-status");
             Route::post("pembayaran/{pembayaran}/cancel", [PembayaranController::class, "cancel"])->name("pembayaran.cancel");
             Route::post("pembayaran/{pembayaran}/confirm-manual", [PembayaranController::class, "confirmManual"])->name("pembayaran.confirm-manual");
             Route::post("pembayaran/{pembayaran}/reject-manual", [PembayaranController::class, "rejectManual"])->name("pembayaran.reject-manual");
             Route::get("pembayaran/{pembayaran}/proof", [PembayaranController::class, "proof"])->name("pembayaran.proof");
+            Route::resource("tagihan", TagihanController::class)->except(["show"]);
         });
-        Route::get("tagihan", function () {
-            return redirect()->route("admin.tagihan.index");
-        })->name("tagihan");
 
         // Kepulangan (Surat Kesanggupan)
         Route::middleware("feature:perizinan")->group(function () {

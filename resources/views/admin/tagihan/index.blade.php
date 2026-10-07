@@ -1,20 +1,28 @@
 @extends('layouts.app')
 @section('title', 'Tagihan')
 @section('page-title', 'Data Tagihan')
+@php
+    $tagihanRoute = request()->routeIs('bendahara.tagihan*') ? 'bendahara.tagihan' : 'admin.tagihan';
+    $paymentRoute = request()->routeIs('bendahara.tagihan*') ? 'bendahara.pembayaran' : 'admin.pembayaran';
+@endphp
 
 @section('sidebar')
+    @if($tagihanRoute === 'bendahara.tagihan')
+        @include('partials.sidebar-bendahara')
+    @else
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 mx-4 mt-6 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-gauge-high w-5 text-center"></i>
         <span class="font-medium text-sm">Dashboard</span>
     </a>
     @include('partials.sidebar-admin')
+    @endif
 @endsection
 
 @section('content')
 <div class="glass-panel rounded-2xl shadow-sm mb-6 overflow-hidden">
     <div class="border-b border-gray-100 bg-white/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <h6 class="text-lg font-bold text-gray-800">Daftar Tagihan Santri</h6>
-        <a href="{{ route('admin.tagihan.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
+        <a href="{{ route($tagihanRoute . '.create') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2">
             <i class="fa-solid fa-file-invoice-dollar"></i> Buat Tagihan
         </a>
     </div>
@@ -77,14 +85,14 @@
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
                             @if($item->status !== 'lunas')
-                                <a href="{{ route('admin.pembayaran.create', ['tagihan_id' => $item->id]) }}" class="px-3 py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 flex items-center gap-1.5 transition-colors text-sm font-medium" title="Proses pembayaran kasir">
+                                <a href="{{ route($paymentRoute . '.create', ['tagihan_id' => $item->id]) }}" class="px-3 py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 flex items-center gap-1.5 transition-colors text-sm font-medium" title="Proses pembayaran kasir">
                                     <i class="fa-solid fa-money-bill-wave"></i> Bayar
                                 </a>
                             @endif
-                            <a href="{{ route('admin.tagihan.edit', $item) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                            <a href="{{ route($tagihanRoute . '.edit', $item) }}" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition-colors">
                                 <i class="fa-solid fa-pen-to-square text-sm"></i>
                             </a>
-                            <form method="POST" action="{{ route('admin.tagihan.destroy', $item) }}" class="inline-block" onsubmit="return confirm('Hapus tagihan santri ini?')">
+                            <form method="POST" action="{{ route($tagihanRoute . '.destroy', $item) }}" class="inline-block" onsubmit="return confirm('Hapus tagihan santri ini?')">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Hapus">
                                     <i class="fa-solid fa-trash-can text-sm"></i>

@@ -96,7 +96,7 @@ class TagihanController extends Controller
         $msg = "{$created} tagihan berhasil dibuat.";
         if ($skipped > 0) $msg .= " {$skipped} dilewati (sudah ada).";
 
-        return redirect()->route('admin.tagihan.index')->with('success', $msg);
+        return redirect()->route($this->tagihanRouteName())->with('success', $msg);
     }
 
     public function edit(Tagihan $tagihan)
@@ -134,7 +134,7 @@ class TagihanController extends Controller
             'due_date'          => $request->due_date,
         ]);
 
-        return redirect()->route('admin.tagihan.index')
+        return redirect()->route($this->tagihanRouteName())
             ->with('success', 'Tagihan berhasil diperbarui.');
     }
 
@@ -143,5 +143,12 @@ class TagihanController extends Controller
         $tagihan->delete();
 
         return back()->with('success', 'Tagihan berhasil dihapus.');
+    }
+
+    private function tagihanRouteName(): string
+    {
+        return request()->routeIs('bendahara.tagihan*')
+            ? 'bendahara.tagihan.index'
+            : 'admin.tagihan.index';
     }
 }

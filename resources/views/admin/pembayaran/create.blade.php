@@ -1,13 +1,21 @@
 @extends('layouts.app')
 @section('title', 'Buat Pembayaran')
 @section('page-title', 'Buat Pembayaran Kasir')
+@php
+    $paymentRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.pembayaran' : 'admin.pembayaran';
+    $tagihanRoute = request()->routeIs('bendahara.pembayaran*') ? 'bendahara.tagihan.index' : 'admin.tagihan.index';
+@endphp
 
 @section('sidebar')
+    @if($paymentRoute === 'bendahara.pembayaran')
+        @include('partials.sidebar-bendahara')
+    @else
     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 mx-4 mt-6 rounded-xl transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600/50 text-white shadow-sm' : 'text-indigo-100 hover:bg-white/10' }}">
         <i class="fa-solid fa-gauge-high w-5 text-center"></i>
         <span class="font-medium text-sm">Dashboard</span>
     </a>
     @include('partials.sidebar-admin')
+    @endif
 @endsection
 
 @section('content')
@@ -41,7 +49,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.pembayaran.store') }}" enctype="multipart/form-data"
+        <form method="POST" action="{{ route($paymentRoute . '.store') }}" enctype="multipart/form-data"
               x-data="{ metode: @js(old('metode', 'manual_cash')) }">
             @csrf
             <input type="hidden" name="tagihan_id" value="{{ $tagihan->id }}">
@@ -83,7 +91,7 @@
             </div>
 
             <div class="flex flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-100 justify-end">
-                <a href="{{ route('admin.tagihan.index') }}" class="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center">Batal</a>
+                <a href="{{ route($tagihanRoute) }}" class="px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-colors text-center">Batal</a>
                 <button type="submit" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors shadow-sm flex items-center justify-center gap-2 text-lg">
                     <i class="fa-solid fa-receipt"></i> Proses Pembayaran
                 </button>
